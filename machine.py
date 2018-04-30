@@ -245,8 +245,10 @@ def lod(op):
     The '0' array shall be the most sublime choice for loading, and shall be
     handled with the utmost velocity.
     """
-    array = arrays[registers[op.b.b]]
-    arrays[0] = array[:]
+    index = registers[op.b.b]
+    if index != 0:
+        array = arrays[index]
+        arrays[0] = array[:]
 
     finger[0] = 0
     finger[1] = registers[op.b.c] - 1
