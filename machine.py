@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import struct
 import ctypes
@@ -38,13 +38,19 @@ def cycle():
         try:
             op.operate()
         except Exception:
-            print('FAIL on {}:{}'.format(*finger))
-            print(op)
-            print('registers', registers)
-            print('arrays', {i: len(a) for i, a in arrays.items()})
+            state('FAIL', op)
+            raise
+        except:
+            state('\nEXIT', op)
             raise
 
         finger[1] += 1
+
+def state(msg, op):
+    print('{} on {}:{}'.format(msg, *finger))
+    print(op)
+    print('registers', registers)
+    print('arrays', {i: len(a) for i, a in arrays.items()})
 
 ##
 ## structs
@@ -261,4 +267,7 @@ operators = [
 ##
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
