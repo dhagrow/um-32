@@ -15,12 +15,14 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('program')
+    parser.add_argument('-c', '--cycles', type=int,
+        help='number of cycles to execute')
     args = parser.parse_args()
 
     with open(args.program, 'rb') as fp:
         arrays[0] = load(fp)
 
-    cycle()
+    cycle(args.cycles)
 
 def load(fp):
     array = new_array('I')
@@ -31,12 +33,16 @@ def load(fp):
         buf = fp.read(4)
     return array
 
-def cycle():
+def cycle(limit=None):
     global finger
+    i = 0
     op = None
 
     try:
-        for _ in itertools.count():
+        for i in itertools.count():
+            if limit is not None and i > limit:
+                break
+
             platter = arrays[0][finger]
 
             op = Operator(platter)
@@ -44,14 +50,14 @@ def cycle():
 
             finger += 1
     except Exception:
-        state('FAIL', op)
+        state('FAIL', i, op)
         raise
     except:
-        state('\nEXIT', op)
+        state('\nEXIT', i, op)
         raise
 
-def state(msg, op=None):
-    print('{} at {}'.format(msg, finger))
+def state(msg, cycle=0, op=None):
+    print('{} at {} (cycle {})'.format(msg, finger, cycle))
     if op is not None:
         print(op)
     print('reg', reg)
