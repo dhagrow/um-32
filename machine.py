@@ -8,7 +8,7 @@ from array import array as new_array
 arrays = {}
 next_index = 0
 abandoned_indexes = set()
-registers = [0] * 8
+reg = [0] * 8
 finger = 0
 
 def main():
@@ -33,25 +33,28 @@ def load(fp):
 
 def cycle():
     global finger
-    for _ in itertools.count():
-        platter = arrays[0][finger]
-        op = Operator(platter)
+    op = None
 
-        try:
+    try:
+        for _ in itertools.count():
+            platter = arrays[0][finger]
+
+            op = Operator(platter)
             op.operate()
-        except Exception:
-            state('FAIL', op)
-            raise
-        except:
-            state('\nEXIT', op)
-            raise
 
-        finger += 1
+            finger += 1
+    except Exception:
+        state('FAIL', op)
+        raise
+    except:
+        state('\nEXIT', op)
+        raise
 
-def state(msg, op):
-    print('{} on {}:{}'.format(msg, *finger))
-    print(op)
-    print('registers', registers)
+def state(msg, op=None):
+    print('{} at {}'.format(msg, finger))
+    if op is not None:
+        print(op)
+    print('reg', reg)
     print('arrays', {i: len(a) for i, a in arrays.items()})
 
 ##
@@ -114,8 +117,8 @@ def cmv(op):
     The register A receives the value in register B, unless the register C
     contains 0.
     """
-    if registers[op.b.c] != 0:
-        registers[op.b.a] = registers[op.b.b]
+    if reg[op.b.c] != 0:
+        reg[op.b.a] = reg[op.b.b]
 
 def aix(op):
     """
@@ -124,8 +127,8 @@ def aix(op):
     The register A receives the value stored at offset in register C in the
     array identified by B.
     """
-    array = arrays[registers[op.b.b]]
-    registers[op.b.a] = array[registers[op.b.c]]
+    array = arrays[reg[op.b.b]]
+    reg[op.b.a] = array[reg[op.b.c]]
 
 def aam(op):
     """
@@ -134,8 +137,8 @@ def aam(op):
     The array identified by A is amended at the offset in register B to store
     the value in register C.
     """
-    array = arrays[registers[op.b.a]]
-    array[registers[op.b.b]] = registers[op.b.c]
+    array = arrays[reg[op.b.a]]
+    array[reg[op.b.b]] = reg[op.b.c]
 
 def add(op):
     """
@@ -144,7 +147,7 @@ def add(op):
     The register A receives the value in register B plus the value in register
     C, modulo 2^32.
     """
-    registers[op.b.a] = (registers[op.b.b] + registers[op.b.c]) % (2**32)
+    reg[op.b.a] = (reg[op.b.b] + reg[op.b.c]) % (2**32)
 
 def mul(op):
     """
@@ -153,7 +156,7 @@ def mul(op):
     The register A receives the value in register B times the value in register
     C, modulo 2^32.
     """
-    registers[op.b.a] = (registers[op.b.b] * registers[op.b.c]) % (2**32)
+    reg[op.b.a] = (reg[op.b.b] * reg[op.b.c]) % (2**32)
 
 def div(op):
     """
@@ -163,7 +166,7 @@ def div(op):
     register C, if any, where each quantity is treated treated as an unsigned
     32 bit number.
     """
-    registers[op.b.a] = registers[op.b.b] // registers[op.b.c]
+    reg[op.b.a] = reg[op.b.b] // reg[op.b.c]
 
 def nad(op):
     """
@@ -173,7 +176,7 @@ def nad(op):
     register C has a 0 bit in that position.  Otherwise the bit in register A
     receives the 0 bit.
     """
-    registers[op.b.a] = (registers[op.b.b] & registers[op.b.c]) ^ ((2**32) - 1)
+    reg[op.b.a] = (reg[op.b.b] & reg[op.b.c]) ^ ((2**32) - 1)
 
 def hlt(_):
     """
@@ -199,8 +202,8 @@ def alc(op):
     except KeyError:
         next_index += 1
         index = next_index
-    arrays[index] = new_array('I', [0] * registers[op.b.c])
-    registers[op.b.b] = index
+    arrays[index] = new_array('I', [0] * reg[op.b.c])
+    reg[op.b.b] = index
 
 def abd(op):
     """
@@ -209,7 +212,7 @@ def abd(op):
     The array identified by the register C is abandoned. Future allocations
     may then reuse that identifier.
     """
-    index = registers[op.b.c]
+    index = reg[op.b.c]
     del arrays[index][:]
     abandoned_indexes.add(index)
 
@@ -220,7 +223,7 @@ def out(op):
     The value in the register C is displayed on the console immediately. Only
     values between and including 0 and 255 are allowed.
     """
-    print(chr(registers[op.b.c]), end='')
+    print(chr(reg[op.b.c]), end='')
 
 def inp():
     """
@@ -249,12 +252,12 @@ def lod(op):
     """
     global finger
 
-    index = registers[op.b.b]
+    index = reg[op.b.b]
     if index != 0:
         array = arrays[index]
         arrays[0] = array[:]
 
-    finger = registers[op.b.c] - 1
+    finger = reg[op.b.c] - 1
 
 def ort(op):
     """
@@ -262,7 +265,7 @@ def ort(op):
 
     The value indicated is loaded into the register A forthwith.
     """
-    registers[op.o.a] = op.o.value
+    reg[op.o.a] = op.o.value
 
 operators = [
     cmv, aix, aam, add, mul, div, nad, hlt, alc, abd, out, inp, lod, ort]
