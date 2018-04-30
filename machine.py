@@ -9,7 +9,7 @@ arrays = {}
 next_index = 0
 abandoned_indexes = set()
 registers = [0] * 8
-finger = [0, 0]
+finger = 0
 
 def main():
     import argparse
@@ -32,8 +32,9 @@ def load(fp):
     return array
 
 def cycle():
+    global finger
     for _ in itertools.count():
-        platter = arrays[finger[0]][finger[1]]
+        platter = arrays[0][finger]
         op = Operator(platter)
 
         try:
@@ -45,7 +46,7 @@ def cycle():
             state('\nEXIT', op)
             raise
 
-        finger[1] += 1
+        finger += 1
 
 def state(msg, op):
     print('{} on {}:{}'.format(msg, *finger))
@@ -246,13 +247,14 @@ def lod(op):
     The '0' array shall be the most sublime choice for loading, and shall be
     handled with the utmost velocity.
     """
+    global finger
+
     index = registers[op.b.b]
     if index != 0:
         array = arrays[index]
         arrays[0] = array[:]
 
-    finger[0] = 0
-    finger[1] = registers[op.b.c] - 1
+    finger = registers[op.b.c] - 1
 
 def ort(op):
     """
