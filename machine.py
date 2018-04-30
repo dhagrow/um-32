@@ -4,8 +4,6 @@ import struct
 import ctypes
 import itertools
 
-import universal_machine
-
 arrays = {}
 next_index = 0
 abandoned_indexes = set()
@@ -33,11 +31,7 @@ def load(fp):
     return array
 
 def cycle():
-    um = universal_machine.um()
-    with open('sandmark.umz', 'rb') as fp:
-        um.mem.append(load(fp))
-
-    for i in itertools.count():
+    for _ in itertools.count():
         platter = arrays[finger[0]][finger[1]]
         op = Operator(platter)
 
@@ -51,13 +45,6 @@ def cycle():
             raise
 
         finger[1] += 1
-
-        um.step()
-        if um.registers != registers:
-            import code
-            l = locals()
-            l.update(globals())
-            code.interact(local=l)
 
 ##
 ## structs
@@ -168,7 +155,7 @@ def div(op):
     register C, if any, where each quantity is treated treated as an unsigned
     32 bit number.
     """
-    registers[op.b.a] = registers[op.b.a] // registers[op.b.c]
+    registers[op.b.a] = registers[op.b.b] // registers[op.b.c]
 
 def nad(op):
     """
@@ -214,8 +201,9 @@ def abd(op):
     The array identified by the register C is abandoned. Future allocations
     may then reuse that identifier.
     """
-    del arrays[registers[op.b.c]][:]
-    abandoned_indexes.add(registers[op.b.c])
+    index = registers[op.b.c]
+    del arrays[index][:]
+    abandoned_indexes.add(index)
 
 def out(op):
     """
