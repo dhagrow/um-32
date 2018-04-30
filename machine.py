@@ -3,6 +3,7 @@
 import struct
 import ctypes
 import itertools
+from array import array as new_array
 
 arrays = {}
 next_index = 0
@@ -22,7 +23,7 @@ def main():
     cycle()
 
 def load(fp):
-    array = []
+    array = new_array('I')
     buf = fp.read(4)
     while buf:
         platter = struct.unpack('>I', buf)[0]
@@ -197,7 +198,7 @@ def alc(op):
     except KeyError:
         next_index += 1
         index = next_index
-    arrays[index] = [0] * registers[op.b.c]
+    arrays[index] = new_array('I', [0] * registers[op.b.c])
     registers[op.b.b] = index
 
 def abd(op):
