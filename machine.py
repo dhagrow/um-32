@@ -4,7 +4,7 @@ import struct
 import itertools
 from array import array as new_array
 
-arrays = {}
+memory = {}
 next_index = 0
 abandoned_indexes = set()
 reg = [0] * 8
@@ -19,7 +19,7 @@ def main():
     args = parser.parse_args()
 
     with open(args.program, 'rb') as fp:
-        arrays[0] = load(fp)
+        memory[0] = load(fp)
 
     cycle(args.cycles)
 
@@ -43,7 +43,7 @@ def cycle(limit=None):
             if limit is not None and i > limit:
                 break
 
-            platter = arrays[0][finger]
+            platter = memory[0][finger]
             code, args = unpack_op(platter)
 
             op = operators[code]
@@ -78,7 +78,7 @@ def state(msg, cycle=0, code=None, args=None):
         name = operators[code].__name__
         print('{}|{}{}'.format(name, code, args))
     print('reg', reg)
-    print('arrays', {i: len(a) for i, a in itertools.islice(arrays.items(), 10)})
+    print('memory', {i: len(a) for i, a in itertools.islice(memory.items(), 10)})
 
 ##
 ## operators
@@ -101,7 +101,7 @@ def aix(a, b, c):
     The register A receives the value stored at offset in register C in the
     array identified by B.
     """
-    array = arrays[reg[b]]
+    array = memory[reg[b]]
     reg[a] = array[reg[c]]
 
 def aam(a, b, c):
@@ -111,7 +111,7 @@ def aam(a, b, c):
     The array identified by A is amended at the offset in register B to store
     the value in register C.
     """
-    array = arrays[reg[a]]
+    array = memory[reg[a]]
     array[reg[b]] = reg[c]
 
 def add(a, b, c):
@@ -176,7 +176,7 @@ def alc(_a, b, c):
     except KeyError:
         next_index += 1
         index = next_index
-    arrays[index] = new_array('I', [0] * reg[c])
+    memory[index] = new_array('I', [0] * reg[c])
     reg[b] = index
 
 def abd(_a, _b, c):
@@ -187,7 +187,7 @@ def abd(_a, _b, c):
     may then reuse that identifier.
     """
     index = reg[c]
-    del arrays[index][:]
+    del memory[index][:]
     abandoned_indexes.add(index)
 
 def out(_a, _b, c):
@@ -228,8 +228,7 @@ def lod(_a, b, c):
 
     index = reg[b]
     if index != 0:
-        array = arrays[index]
-        arrays[0] = array[:]
+        array = memory[0] = array[:]
 
     finger = reg[c] - 1
 
