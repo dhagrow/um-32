@@ -78,7 +78,7 @@ def state(msg, cycle=0, code=None, args=None):
         name = operators[code].__name__
         print('{}<{}>{}'.format(name, code, args))
     print('reg', reg)
-    print('arrays', {i: len(a) for i, a in arrays.items()})
+    print('arrays', {i: len(a) for i, a in itertools.islice(arrays.items(), 10)})
 
 ##
 ## operators
