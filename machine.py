@@ -160,7 +160,7 @@ def hlt(_a, _b, _c):
     """
     raise SystemExit
 
-def alc(a, b, c):
+def alc(_a, b, c):
     """
     #8. Allocation.
 
@@ -179,7 +179,7 @@ def alc(a, b, c):
     arrays[index] = new_array('I', [0] * reg[c])
     reg[b] = index
 
-def abd(a, b, c):
+def abd(_a, _b, c):
     """
     #9. Abandonment.
 
@@ -190,7 +190,7 @@ def abd(a, b, c):
     del arrays[index][:]
     abandoned_indexes.add(index)
 
-def out(a, b, c):
+def out(_a, _b, c):
     """
     #10. Output.
 
@@ -211,7 +211,7 @@ def inp():
     """
     pass
 
-def lod(a, b, c):
+def lod(_a, b, c):
     """
     #12. Load Program.
 
