@@ -6,16 +6,52 @@
 uint32_t **memory;
 uint32_t *array_sizes;
 uint32_t finger;
+uint32_t reg[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+enum Operators {
+    cmv, aix, aam, add, mul, divi, nad, hlt, alc, abd, out, inp, lod, ort};
+
+union Operator {
+    struct {
+        uint32_t c    : 3;
+        uint32_t b    : 3;
+        uint32_t a    : 3;
+        uint32_t _    : 19;
+        enum Operators code : 4;
+    } b;
+    uint32_t value;
+};
+
+void state() {
+    printf("state:\n");
+    for (int i=0; i < 8; i++) {
+        printf("%d: %u\n", i, reg[i]);
+    }
+}
 
 void cycle() {
     printf("platters: %u\n", array_sizes[0]);
 
-    uint32_t platter;
+    union Operator op;
     finger = 0;
 
     while (finger < array_sizes[0]) {
-        platter = memory[0][finger];
-        printf("platter: %u\n", __bswap_32(platter));
+        op.value = memory[0][finger];
+
+        switch (op.b.code) {
+        case cmv:
+            if (reg[op.b.c] != 0)
+                reg[op.b.a] = reg[op.b.b];
+            break;
+        case add:
+            reg[op.b.a] = (reg[op.b.b] + reg[op.b.c]) % (1 << 32);
+            break;
+        default:
+            printf("unknown code: %u\n", op.b.code);
+        };
+
+        state();
+
         finger++;
     }
 }
@@ -29,10 +65,12 @@ uint32_t load(FILE *fp, uint32_t **array) {
     *array = (uint32_t *) malloc(num_platters * sizeof(uint32_t));
 
     uint32_t *pos = *array;
-    size_t bytes_read = fread(pos, sizeof(*pos), 1, fp);
-    while (bytes_read != 0) {
-        ++pos;
+    size_t bytes_read;
+    while (1) {
         bytes_read = fread(pos, sizeof(*pos), 1, fp);
+        if (bytes_read != 1) break;
+        *pos = __bswap_32(*pos);
+        ++pos;
     }
 
     return num_platters;
