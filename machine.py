@@ -228,7 +228,7 @@ def lod(_a, b, c):
 
     index = reg[b]
     if index != 0:
-        array = memory[0] = array[:]
+        memory[0] = memory[index][:]
 
     finger = reg[c] - 1
 
