@@ -8,30 +8,40 @@
 uint8_t volatile stop = 0;
 uint32_t **memory;
 uint32_t *array_sizes;
+uint32_t cycle;
 uint32_t finger;
 uint32_t reg[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 enum Operators {
     cmv, aix, aam, add, mul, divi, nad, hlt, alc, abd, out, inp, lod, ort};
 
-void state() {
+void state(uint8_t code, uint8_t a, uint8_t b, uint8_t c) {
+    printf("\nSTOP at %u (cycle %u)\n", finger, cycle);
+    printf("op|%u(%u, %u, %u)\n", code, a, b, c);
     for (int i=0; i < 8; i++) {
         printf("%d=%u ", i, reg[i]);
     }
     printf("\n");
 }
 
-void cycle() {
+void run(uint32_t limit) {
     uint32_t platter;
     uint8_t code;
     uint8_t a;
     uint8_t b;
     uint8_t c;
+
     uint32_t tmp; // misc values
 
+    cycle = 0;
     finger = 0;
 
     while (!stop && finger < array_sizes[0]) {
+        if (limit > 0 && cycle == limit) {
+            stop = 1;
+            break;
+        }
+
         platter = memory[0][finger];
         code = (platter >> 28);
 
@@ -52,12 +62,12 @@ void cycle() {
         case add: // 03
             reg[a] = (reg[b] + reg[c]) % (1UL << 32);
             break;
-        case mul: // 04
-            reg[a] = (reg[b] * reg[c]) % (1UL << 32);
-            break;
-        case nad: // 06
-            reg[a] = !(reg[b] & reg[c]);
-            break;
+        // case mul: // 04
+        //     reg[a] = (reg[b] * reg[c]) % (1UL << 32);
+        //     break;
+        // case nad: // 06
+        //     reg[a] = !(reg[b] & reg[c]);
+        //     break;
         case out: // 10
             putchar(reg[c]);
             break;
@@ -76,16 +86,16 @@ void cycle() {
             break;
         default:
             printf("\nunknown code: %u\n", code);
-            state();
+            state(code, a, b, c);
             return;
         };
 
         finger++;
+        cycle++;
     }
 
     if (stop) {
-        printf("\nop: %u a=%u b=%u c=%u pc=%u\n", code, a, b, c, finger);
-        state();
+        state(code, a, b, c);
     }
 }
 
@@ -113,8 +123,10 @@ void sig_handler(int sig) {
     stop = 1;
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
     signal(SIGINT, sig_handler);
+
+    uint32_t limit = argc == 2 ? atoi(argv[1]) : 0;
 
     // initialize array 0
     memory = (uint32_t **) malloc(sizeof(uint32_t));
@@ -124,7 +136,7 @@ int main(void) {
     array_sizes[0] = load(fp, &(memory[0]));
     fclose(fp);
 
-    cycle();
+    run(limit);
 
     free(memory[0]);
     free(array_sizes);
