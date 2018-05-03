@@ -32,8 +32,7 @@ void run(uint32_t limit) {
     uint8_t a;
     uint8_t b;
     uint8_t c;
-
-    uint32_t tmp; // misc values
+    uint32_t val;
 
     cycle = 0;
     finger = 0;
@@ -44,7 +43,7 @@ void run(uint32_t limit) {
 
         if (code == ort) {
             a = (platter >> 25) & 7;
-            b = platter & 0x1ffffff;
+            val = platter & 0x1ffffff;
         } else {
             a = (platter >> 6) & 7;
             b = (platter >> 3) & 7;
@@ -72,15 +71,15 @@ void run(uint32_t limit) {
         case lod: // 12
             if (reg[b] != 0) {
                 free(memory[0]);
-                tmp = array_sizes[reg[b]]; // size
-                memory[0] = (uint32_t *) malloc(tmp * sizeof(uint32_t));
-                memcpy(memory[0], memory[reg[b]], tmp * sizeof(uint32_t));
-                array_sizes[0] = tmp;
+                val = array_sizes[reg[b]]; // size
+                memory[0] = (uint32_t *) malloc(val * sizeof(uint32_t));
+                memcpy(memory[0], memory[reg[b]], val * sizeof(uint32_t));
+                array_sizes[0] = val;
             }
             finger = reg[c] - 1;
             break;
         case ort: // 13
-            reg[a] = b;
+            reg[a] = val;
             break;
         default:
             printf("unknown code: %u\n", code);
