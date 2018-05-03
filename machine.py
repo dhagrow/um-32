@@ -40,15 +40,15 @@ def cycle(limit=None):
 
     try:
         for i in itertools.count():
-            if limit is not None and i == limit:
-                state('LIMIT', i, code, args)
-                break
-
             platter = memory[0][finger]
             code, args = unpack_op(platter)
 
             op = operators[code]
             op(*args)
+
+            if limit is not None and i == limit:
+                state('LIMIT', i, code, args)
+                break
 
             finger += 1
     except Exception:

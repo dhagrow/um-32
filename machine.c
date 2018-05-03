@@ -18,10 +18,12 @@ enum Operators {
 void state(uint8_t code, uint8_t a, uint8_t b, uint8_t c) {
     printf("\nSTOP at %u (cycle %u)\n", finger, cycle);
     printf("op|%u(%u, %u, %u)\n", code, a, b, c);
-    for (int i=0; i < 8; i++) {
-        printf("%d=%u ", i, reg[i]);
+    printf("reg [");
+    for (int i=0; i < 7; i++) {
+        printf("%u, ", reg[i]);
     }
-    printf("\n");
+    printf("%u]\n", reg[7]);
+    printf("memory {0: %u}\n", array_sizes[0]);
 }
 
 void run(uint32_t limit) {
@@ -37,10 +39,6 @@ void run(uint32_t limit) {
     finger = 0;
 
     while (!stop && finger < array_sizes[0]) {
-        if (limit > 0 && cycle == limit) {
-            stop = 1;
-            break;
-        }
 
         platter = memory[0][finger];
         code = (platter >> 28);
@@ -85,10 +83,15 @@ void run(uint32_t limit) {
             reg[a] = b;
             break;
         default:
-            printf("\nunknown code: %u\n", code);
+            printf("unknown code: %u\n", code);
             state(code, a, b, c);
             return;
         };
+
+        if (limit > 0 && cycle == limit) {
+            stop = 1;
+            break;
+        }
 
         finger++;
         cycle++;
