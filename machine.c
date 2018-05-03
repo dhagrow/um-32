@@ -56,11 +56,20 @@ void run(uint32_t limit) {
                 reg[a] = reg[b];
             }
             break;
+        case aix: // 01
+            reg[a] = memory[reg[b]][reg[c]];
+            break;
+        case aam: // 02
+            memory[reg[a]][reg[b]] = reg[c];
+            break;
         case add: // 03
             reg[a] = (reg[b] + reg[c]) % (1UL << 32);
             break;
         case mul: // 04
             reg[a] = (reg[b] * reg[c]) % (1UL << 32);
+            break;
+        case divi: // 05
+            reg[a] = reg[b] / reg[c];
             break;
         case nad: // 06
             reg[a] = (reg[b] & reg[c]) ^ ((1UL << 32) - 1);
