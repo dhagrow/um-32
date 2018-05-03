@@ -39,7 +39,6 @@ void run(uint32_t limit) {
     finger = 0;
 
     while (!stop && finger < array_sizes[0]) {
-
         platter = memory[0][finger];
         code = (platter >> 28);
 
@@ -54,18 +53,19 @@ void run(uint32_t limit) {
 
         switch (code) {
         case cmv: // 00
-            if (reg[c] != 0)
+            if (reg[c] != 0) {
                 reg[a] = reg[b];
+            }
             break;
         case add: // 03
             reg[a] = (reg[b] + reg[c]) % (1UL << 32);
             break;
-        // case mul: // 04
-        //     reg[a] = (reg[b] * reg[c]) % (1UL << 32);
-        //     break;
-        // case nad: // 06
-        //     reg[a] = !(reg[b] & reg[c]);
-        //     break;
+        case mul: // 04
+            reg[a] = (reg[b] * reg[c]) % (1UL << 32);
+            break;
+        case nad: // 06
+            reg[a] = (reg[b] & reg[c]) ^ ((1UL << 32) - 1);
+            break;
         case out: // 10
             putchar(reg[c]);
             break;
