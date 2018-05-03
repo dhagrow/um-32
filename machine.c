@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <byteswap.h>
 
 uint32_t **memory;
@@ -11,41 +12,21 @@ uint32_t reg[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 enum Operators {
     cmv, aix, aam, add, mul, divi, nad, hlt, alc, abd, out, inp, lod, ort};
 
-union Operator {
-    struct {
-        uint32_t c: 3;
-        uint32_t b: 3;
-        uint32_t a: 3;
-        uint32_t _: 19;
-        enum Operators code : 4;
-    } b;
-    uint32_t value;
-};
-
-union Orthography {
-    struct {
-        uint32_t value: 25;
-        uint32_t a: 3;
-        enum Operators code : 4;
-    } b;
-    uint32_t value;
-};
-
 void state() {
     for (int i=0; i < 8; i++) {
-        printf("%d: %u ", i, reg[i]);
+        printf("%d=%u ", i, reg[i]);
     }
     printf("\n");
 }
 
 void cycle() {
     uint32_t platter;
-    uint32_t code;
-    uint32_t a;
-    uint32_t b;
-    uint32_t c;
+    uint8_t code;
+    uint8_t a;
+    uint8_t b;
+    uint8_t c;
+    uint32_t tmp; // misc values
 
-    printf("platters: %u\n", array_sizes[0]);
     finger = 0;
 
     while (finger < array_sizes[0]) {
@@ -62,24 +43,39 @@ void cycle() {
         }
 
         switch (code) {
-        case cmv:
+        case cmv: // 00
             if (reg[c] != 0)
                 reg[a] = reg[b];
             break;
-        case add:
+        case add: // 03
             reg[a] = (reg[b] + reg[c]) % (1UL << 32);
             break;
-        case lod:
-            if (reg[b] != 0) {
-                // reallocate 0
-            }
+        // case mul: // 04
+        //     reg[a] = (reg[b] * reg[c]) % (1UL << 32);
+        //     break;
+        case nad: // 06
+            reg[a] = !(reg[b] & reg[c]);
             break;
-        case ort:
+        case out: // 10
+            putchar(reg[c]);
+            break;
+        case lod: // 12
+            if (reg[b] != 0) {
+                free(memory[0]);
+                tmp = array_sizes[reg[b]]; // size
+                memory[0] = (uint32_t *) malloc(tmp * sizeof(uint32_t));
+                memcpy(memory[0], memory[reg[b]], tmp * sizeof(uint32_t));
+                array_sizes[0] = tmp;
+            }
+            finger = reg[c] - 1;
+            break;
+        case ort: // 13
             reg[a] = b;
             break;
         default:
-            printf("unknown code: %u\n", code);
+            printf("\nunknown code: %u\n", code);
             state();
+            return;
         };
 
         finger++;
