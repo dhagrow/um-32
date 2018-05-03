@@ -13,17 +13,25 @@ enum Operators {
 
 union Operator {
     struct {
-        uint32_t c    : 3;
-        uint32_t b    : 3;
-        uint32_t a    : 3;
-        uint32_t _    : 19;
+        uint32_t c: 3;
+        uint32_t b: 3;
+        uint32_t a: 3;
+        uint32_t _: 19;
+        enum Operators code : 4;
+    } b;
+    uint32_t value;
+};
+
+union Orthography {
+    struct {
+        uint32_t value: 25;
+        uint32_t a: 3;
         enum Operators code : 4;
     } b;
     uint32_t value;
 };
 
 void state() {
-    printf("state:\n");
     for (int i=0; i < 8; i++) {
         printf("%d: %u\n", i, reg[i]);
     }
@@ -38,13 +46,15 @@ void cycle() {
     while (finger < array_sizes[0]) {
         op.value = memory[0][finger];
 
+        printf("code: %u\n", op.b.code);
+
         switch (op.b.code) {
         case cmv:
             if (reg[op.b.c] != 0)
                 reg[op.b.a] = reg[op.b.b];
             break;
         case add:
-            reg[op.b.a] = (reg[op.b.b] + reg[op.b.c]) % (1 << 32);
+            reg[op.b.a] = (reg[op.b.b] + reg[op.b.c]) % (1UL << 32);
             break;
         default:
             printf("unknown code: %u\n", op.b.code);
