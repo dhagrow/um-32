@@ -40,7 +40,8 @@ def cycle(limit=None):
 
     try:
         for i in itertools.count():
-            if limit is not None and i > limit:
+            if limit is not None and i == limit:
+                state('LIMIT', i, code, args)
                 break
 
             platter = memory[0][finger]
