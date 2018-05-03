@@ -33,34 +33,54 @@ union Orthography {
 
 void state() {
     for (int i=0; i < 8; i++) {
-        printf("%d: %u\n", i, reg[i]);
+        printf("%d: %u ", i, reg[i]);
     }
+    printf("\n");
 }
 
 void cycle() {
-    printf("platters: %u\n", array_sizes[0]);
+    uint32_t platter;
+    uint32_t code;
+    uint32_t a;
+    uint32_t b;
+    uint32_t c;
 
-    union Operator op;
+    printf("platters: %u\n", array_sizes[0]);
     finger = 0;
 
     while (finger < array_sizes[0]) {
-        op.value = memory[0][finger];
+        platter = memory[0][finger];
+        code = (platter >> 28);
 
-        printf("code: %u\n", op.b.code);
+        if (code == ort) {
+            a = (platter >> 25) & 7;
+            b = platter & 0x1ffffff;
+        } else {
+            a = (platter >> 6) & 7;
+            b = (platter >> 3) & 7;
+            c = platter & 7;
+        }
 
-        switch (op.b.code) {
+        switch (code) {
         case cmv:
-            if (reg[op.b.c] != 0)
-                reg[op.b.a] = reg[op.b.b];
+            if (reg[c] != 0)
+                reg[a] = reg[b];
             break;
         case add:
-            reg[op.b.a] = (reg[op.b.b] + reg[op.b.c]) % (1UL << 32);
+            reg[a] = (reg[b] + reg[c]) % (1UL << 32);
+            break;
+        case lod:
+            if (reg[b] != 0) {
+                // reallocate 0
+            }
+            break;
+        case ort:
+            reg[a] = b;
             break;
         default:
-            printf("unknown code: %u\n", op.b.code);
+            printf("unknown code: %u\n", code);
+            state();
         };
-
-        state();
 
         finger++;
     }
