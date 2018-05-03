@@ -2,8 +2,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <byteswap.h>
 
+uint8_t volatile stop = 0;
 uint32_t **memory;
 uint32_t *array_sizes;
 uint32_t finger;
@@ -29,7 +31,7 @@ void cycle() {
 
     finger = 0;
 
-    while (finger < array_sizes[0]) {
+    while (!stop && finger < array_sizes[0]) {
         platter = memory[0][finger];
         code = (platter >> 28);
 
@@ -50,9 +52,9 @@ void cycle() {
         case add: // 03
             reg[a] = (reg[b] + reg[c]) % (1UL << 32);
             break;
-        // case mul: // 04
-        //     reg[a] = (reg[b] * reg[c]) % (1UL << 32);
-        //     break;
+        case mul: // 04
+            reg[a] = (reg[b] * reg[c]) % (1UL << 32);
+            break;
         case nad: // 06
             reg[a] = !(reg[b] & reg[c]);
             break;
@@ -80,6 +82,11 @@ void cycle() {
 
         finger++;
     }
+
+    if (stop) {
+        printf("\nop: %u a=%u b=%u c=%u pc=%u\n", code, a, b, c, finger);
+        state();
+    }
 }
 
 uint32_t load(FILE *fp, uint32_t **array) {
@@ -102,7 +109,13 @@ uint32_t load(FILE *fp, uint32_t **array) {
     return num_platters;
 }
 
+void sig_handler(int sig) {
+    stop = 1;
+}
+
 int main(void) {
+    signal(SIGINT, sig_handler);
+
     // initialize array 0
     memory = (uint32_t **) malloc(sizeof(uint32_t));
     array_sizes = (uint32_t *) malloc(sizeof(uint32_t));
