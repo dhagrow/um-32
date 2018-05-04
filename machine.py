@@ -133,7 +133,7 @@ def mul(a, b, c):
     """
     reg[a] = (reg[b] * reg[c]) % (2**32)
 
-def div(a, b, c):
+def dvi(a, b, c):
     """
     #5. Division.
 
@@ -242,7 +242,7 @@ def ort(a, value):
     reg[a] = value
 
 operators = [
-    cmv, aix, aam, add, mul, div, nad, hlt, alc, abd, out, inp, lod, ort]
+    cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, out, inp, lod, ort]
 
 ##
 ## entry

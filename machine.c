@@ -13,7 +13,7 @@ uint32_t finger;
 uint32_t reg[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 enum Operators {
-    cmv, aix, aam, add, mul, divi, nad, hlt, alc, abd, out, inp, lod, ort};
+    cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, out, inp, lod, ort};
 
 void state(uint8_t code, uint8_t a, uint8_t b, uint8_t c) {
     printf("\nSTOP at %u (cycle %u)\n", finger, cycle);
@@ -33,6 +33,7 @@ void run(uint32_t limit) {
     uint8_t b;
     uint8_t c;
     uint32_t val;
+    uint32_t *pval = &val;
 
     cycle = 0;
     finger = 0;
@@ -68,11 +69,18 @@ void run(uint32_t limit) {
         case mul: // 04
             reg[a] = (reg[b] * reg[c]) % (1UL << 32);
             break;
-        case divi: // 05
+        case dvi: // 05
             reg[a] = reg[b] / reg[c];
             break;
         case nad: // 06
             reg[a] = (reg[b] & reg[c]) ^ ((1UL << 32) - 1);
+            break;
+        case alc: // 08
+            pval = (uint32_t *) malloc(reg[c] * sizeof(uint32_t));
+            reg[b] = (uint64_t) pval;
+            break;
+        case abd: // 09
+            free((void *) reg[c]);
             break;
         case out: // 10
             putchar(reg[c]);
