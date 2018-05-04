@@ -33,7 +33,6 @@ void run(uint32_t limit) {
     uint8_t b;
     uint8_t c;
     uint32_t val;
-    uint32_t *pval = &val;
 
     cycle = 0;
     finger = 0;
@@ -75,13 +74,12 @@ void run(uint32_t limit) {
         case nad: // 06
             reg[a] = (reg[b] & reg[c]) ^ ((1UL << 32) - 1);
             break;
-        case alc: // 08
-            pval = (uint32_t *) malloc(reg[c] * sizeof(uint32_t));
-            reg[b] = (uint64_t) pval;
-            break;
-        case abd: // 09
-            free((void *) reg[c]);
-            break;
+        // case alc: // 08
+        //     reg[b] = new_array(reg[c]);
+        //     break;
+        // case abd: // 09
+        //     free((void *) reg[c]);
+        //     break;
         case out: // 10
             putchar(reg[c]);
             break;
@@ -148,7 +146,7 @@ int main(int argc, char *argv[]) {
     uint32_t limit = argc == 2 ? atoi(argv[1]) : 0;
 
     // initialize array 0
-    memory = (uint32_t **) malloc(sizeof(uint32_t));
+    memory = (uint32_t **) malloc(sizeof(uint32_t *));
     array_sizes = (uint32_t *) malloc(sizeof(uint32_t));
 
     FILE *fp = fopen("scrolls/sandmark.umz", "rb");
