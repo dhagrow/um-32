@@ -102,6 +102,8 @@ void run(uint32_t limit) {
         case nad: // 06
             reg[a] = (reg[b] & reg[c]) ^ ((1UL << 32) - 1);
             break;
+        case hlt: // 07
+            return;
         case alc: // 08
             reg[b] = new_array(reg[c]);
             break;
