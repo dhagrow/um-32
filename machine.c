@@ -170,13 +170,19 @@ void sig_handler(int sig) {
 int main(int argc, char *argv[]) {
     signal(SIGINT, sig_handler);
 
-    uint32_t limit = argc == 2 ? atoi(argv[1]) : 0;
+    if (argc < 2 || argc > 3) {
+        printf("usage: machine <source> [cycle-limit]\n");
+        return 0;
+    }
+
+    char *path = argv[1];
+    uint32_t limit = argc == 3 ? atoi(argv[2]) : 0;
 
     // initialize array 0
     memory = malloc(sizeof(*memory));
     mem_size = 1;
 
-    FILE *fp = fopen("scrolls/sandmark.umz", "rb");
+    FILE *fp = fopen(path, "rb");
     load(fp, &(memory[0]));
     fclose(fp);
 
