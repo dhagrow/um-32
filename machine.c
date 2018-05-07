@@ -111,6 +111,9 @@ void run(uint32_t limit) {
         case out: // 10
             putchar(reg[c]);
             break;
+        case inp: // 11
+            reg[c] = getchar();
+            break;
         case lod: // 12
             if (reg[b] != 0) {
                 free(memory[0].data);
