@@ -202,6 +202,7 @@ def out(_a, _b, c):
     values between and including 0 and 255 are allowed.
     """
     print(chr(reg[c]), end='')
+    sys.stdout.flush()
 
 def inp(_a, _b, c):
     """

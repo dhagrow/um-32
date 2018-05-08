@@ -112,6 +112,7 @@ void run(uint32_t limit) {
             break;
         case out: // 10
             putchar(reg[c]);
+            fflush(stdout);
             break;
         case inp: // 11
             reg[c] = getchar();
