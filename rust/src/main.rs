@@ -15,11 +15,11 @@ fn main() {
         if i == 10 {
             break;
         }
-        f.read_exact(&mut buffer);
+        f.read_exact(&mut buffer).unwrap();
         unsafe {
             platter = mem::transmute::<[u8; 4], u32>(buffer).to_be();
         }
-        println!("{:?}", platter);
+        println!("{:032b}", platter);
         i += 1;
     }
 }
