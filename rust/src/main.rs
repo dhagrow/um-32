@@ -3,6 +3,10 @@ use std::fs::File;
 use std::vec::Vec;
 use std::io::prelude::*;
 
+enum Operator {
+    cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, out, inp, lod, ort,
+}
+
 struct Machine {
     memory: Vec<Vec<u32>>,
     stop: bool,
@@ -45,6 +49,12 @@ impl Machine {
 
             code = (platter >> 28) as u8;
             println!("code: {}", code);
+
+            match code {
+                Operator::ort as u8 => {
+
+                }
+            }
 
             finger += 1;
         }
