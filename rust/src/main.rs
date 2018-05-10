@@ -5,11 +5,12 @@ use std::io::prelude::*;
 
 struct Machine {
     memory: Vec<Vec<u32>>,
+    stop: bool,
 }
 
 impl Machine {
     fn new() -> Machine {
-        Machine{ memory: Vec::new() }
+        Machine{ memory: Vec::new(), stop: false }
     }
 
     fn load(&mut self, filename: &str) {
@@ -20,15 +21,33 @@ impl Machine {
 
         let mut program = Vec::new();
 
-        loop {
-            f.read_exact(&mut buffer).expect("failed to read platter");
+        while f.read_exact(&mut buffer).is_ok() {
             unsafe { platter = mem::transmute::<[u8; 4], u32>(buffer).to_be(); }
-
             program.push(platter);
         }
 
-        println!("{:?}", program.len());
         self.memory.push(program);
+    }
+
+    fn run(&self) {
+        let program = &self.memory[0];
+        let mut finger: u32 = 0;
+        let mut platter: u32;
+
+        let mut code: u8;
+
+        while !self.stop {
+            if finger == 10 {
+                break;
+            }
+            platter = program[finger as usize];
+            println!("{:032b}", platter);
+
+            code = (platter >> 28) as u8;
+            println!("code: {}", code);
+
+            finger += 1;
+        }
     }
 }
 
@@ -37,4 +56,5 @@ fn main() {
     let filename = "../scrolls/sandmark.umz";
 
     machine.load(filename);
+    machine.run();
 }
