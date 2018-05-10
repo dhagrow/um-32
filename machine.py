@@ -1,6 +1,10 @@
 #! /usr/bin/env python3
 
+import sys
+import tty
 import struct
+import termios
+import argparse
 import itertools
 from array import array as new_array
 
@@ -11,7 +15,6 @@ reg = [0] * 8
 finger = 0
 
 def main():
-    import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('program')
     parser.add_argument('-c', '--cycles', type=int,
@@ -199,8 +202,9 @@ def out(_a, _b, c):
     values between and including 0 and 255 are allowed.
     """
     print(chr(reg[c]), end='')
+    sys.stdout.flush()
 
-def inp():
+def inp(_a, _b, c):
     """
     #11. Input.
 
@@ -210,7 +214,13 @@ def inp():
     register C is endowed with a uniform value pattern where every place is
     pregnant with the 1 bit.
     """
-    pass
+    fd = sys.stdin.fileno()
+    old = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        reg[c] = ord(sys.stdin.read(1))
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
 def lod(_a, b, c):
     """
