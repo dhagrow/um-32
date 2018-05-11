@@ -1,5 +1,6 @@
 use std::io;
 use std::mem;
+use std::char;
 use std::fs::File;
 use std::vec::Vec;
 use std::io::prelude::*;
@@ -53,8 +54,8 @@ impl Machine {
 
         let mut code: u8;
         let mut a: usize;
-        let mut b: usize = 0;
-        let mut c: usize = 0;
+        let mut b: usize;
+        let mut c: usize;
         let mut val: u32;
 
         while !self.stop {
@@ -87,7 +88,7 @@ impl Machine {
                         Operator::dvi => reg[a] = reg[b].wrapping_div(reg[c]),
                         Operator::nad => reg[a] = !(reg[b] & reg[c]),
                         Operator::out => {
-                            print!("{}", std::char::from_u32(reg[c]).unwrap());
+                            print!("{}", char::from_u32(reg[c]).unwrap());
                             io::stdout().flush().unwrap();
                         },
                         Operator::lod => {
