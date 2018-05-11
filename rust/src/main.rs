@@ -25,7 +25,6 @@ struct Machine {
     memory: Vec<Vec<u32>>,
     reg: [u32; 8],
     abandoned_indexes: Vec<u32>,
-    stop: bool,
 }
 
 impl Machine {
@@ -34,7 +33,6 @@ impl Machine {
             memory: vec![],
             reg: [0; 8],
             abandoned_indexes: vec![],
-            stop: false,
             }
     }
 
@@ -65,7 +63,7 @@ impl Machine {
         let mut c: usize;
         let mut val: u32;
 
-        while !self.stop {
+        loop {
             platter = self.memory[0][finger as usize];
 
             code = (platter >> 28) as u8;
@@ -96,6 +94,7 @@ impl Machine {
                         Operator::mul => reg[a] = reg[b].wrapping_mul(reg[c]),
                         Operator::dvi => reg[a] = reg[b].wrapping_div(reg[c]),
                         Operator::nad => reg[a] = !(reg[b] & reg[c]),
+                        Operator::hlt => break,
                         Operator::alc => {
                             let new_mem = vec![0; reg[c] as usize];
                             match self.abandoned_indexes.pop() {
@@ -116,6 +115,9 @@ impl Machine {
                         Operator::out => {
                             print!("{}", char::from_u32(reg[c]).unwrap());
                             io::stdout().flush().unwrap();
+                        },
+                        Operator::inp => {
+                            reg[c] = io::stdin().bytes().next().unwrap().unwrap() as u32;
                         },
                         Operator::lod => {
                             if reg[b] != 0 {
