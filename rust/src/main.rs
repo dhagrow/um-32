@@ -12,7 +12,7 @@ enum Operator {
     cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, out, inp, lod, ort,
 }
 
-fn from_u8(n: u8) -> Option<Operator> {
+fn operator_from_u8(n: u8) -> Option<Operator> {
     if n <= 13 {
         Some(unsafe { mem::transmute(n) })
     } else {
@@ -43,7 +43,7 @@ impl Machine {
         let mut buffer = [0; 4];
         let mut platter: u32;
 
-        let mut program = Vec::new();
+        let mut program = vec![];
 
         while f.read_exact(&mut buffer).is_ok() {
             unsafe { platter = mem::transmute::<[u8; 4], u32>(buffer).to_be(); }
@@ -69,7 +69,7 @@ impl Machine {
 
             code = (platter >> 28) as u8;
 
-            match from_u8(code) {
+            match operator_from_u8(code) {
                 Some(Operator::ort) => {
                     a = ((platter >> 25) & 7) as usize;
                     val = platter & 0x1ffffff;
@@ -80,6 +80,8 @@ impl Machine {
                     a = ((platter >> 6) & 7) as usize;
                     b = ((platter >> 3) & 7) as usize;
                     c = (platter & 7) as usize;
+
+                    // Machine::state(&self.memory, reg, &code, a, b, c);
 
                     match code {
                         Operator::cmv => {
@@ -94,8 +96,7 @@ impl Machine {
                         Operator::dvi => reg[a] = reg[b].wrapping_div(reg[c]),
                         Operator::nad => reg[a] = !(reg[b] & reg[c]),
                         Operator::alc => {
-                            Machine::state(reg, code, a, b, c);
-                            let new_mem = vec![0, reg[c]];
+                            let new_mem = vec![0; reg[c] as usize];
                             match self.abandoned_indexes.pop() {
                                 Some(index) => {
                                     self.memory[index as usize] = new_mem;
@@ -108,7 +109,7 @@ impl Machine {
                             };
                         },
                         Operator::abd => {
-                            self.memory.remove(reg[c] as usize);
+                            self.memory[reg[c] as usize].clear();
                             self.abandoned_indexes.push(reg[c]);
                         },
                         Operator::out => {
@@ -119,7 +120,7 @@ impl Machine {
                             if reg[b] != 0 {
                                 self.memory[0] = self.memory[reg[b] as usize].to_vec();
                             }
-                            finger = reg[c] - 1;
+                            finger = reg[c].wrapping_sub(1);
                         },
                         _ => {
                             println!("unknown code: {:?}", code);
@@ -133,13 +134,15 @@ impl Machine {
                 },
             }
 
-            finger += 1;
+            finger = finger.wrapping_add(1);
         }
     }
 
-    fn state(reg: &[u32; 8], code: Operator, a: usize, b: usize, c: usize) {
+    #[allow(dead_code)]
+    fn state(mem: &Vec<Vec<u32>>, reg: &[u32; 8], code: &Operator, a: usize, b: usize, c: usize) {
         println!("{:?}({}, {}, {})", code, a, b, c);
         println!("reg {:?}", reg);
+        println!("mem {:?}", mem.len());
     }
 }
 
