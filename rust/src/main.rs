@@ -1,4 +1,5 @@
 use std::io;
+use std::env;
 use std::mem;
 use std::char;
 use std::fs::File;
@@ -37,7 +38,7 @@ impl Machine {
             }
     }
 
-    fn load(&mut self, filename: &str) {
+    fn load(&mut self, filename: &String) {
         let mut f = File::open(filename).expect("file not found");
 
         let mut buffer = [0; 4];
@@ -147,9 +148,16 @@ impl Machine {
 }
 
 fn main() {
-    let mut machine = Machine::new();
-    let filename = "../scrolls/sandmark.umz";
+    let args: Vec<String> = env::args().collect();
 
-    machine.load(filename);
+    if args.len() < 2 {
+        println!("usage: machine <source>");
+        return;
+    }
+
+    let filename = &args[1];
+
+    let mut machine = Machine::new();
+    machine.load(&filename);
     machine.run();
 }
