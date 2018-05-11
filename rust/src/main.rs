@@ -1,20 +1,33 @@
+use std::io;
 use std::mem;
 use std::fs::File;
 use std::vec::Vec;
 use std::io::prelude::*;
 
+#[allow(dead_code)]
+#[allow(non_camel_case_types)]
+#[derive(Debug)]
 enum Operator {
     cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, out, inp, lod, ort,
 }
 
+fn from_u8(n: u8) -> Option<Operator> {
+    if n <= 13 {
+        Some(unsafe { mem::transmute(n) })
+    } else {
+        None
+    }
+}
+
 struct Machine {
     memory: Vec<Vec<u32>>,
+    reg: [u32; 8],
     stop: bool,
 }
 
 impl Machine {
     fn new() -> Machine {
-        Machine{ memory: Vec::new(), stop: false }
+        Machine{ memory: Vec::new(), reg: [0; 8], stop: false }
     }
 
     fn load(&mut self, filename: &str) {
@@ -33,31 +46,77 @@ impl Machine {
         self.memory.push(program);
     }
 
-    fn run(&self) {
-        let program = &self.memory[0];
+    fn run(&mut self) {
+        let reg = &mut self.reg;
         let mut finger: u32 = 0;
         let mut platter: u32;
 
         let mut code: u8;
+        let mut a: usize;
+        let mut b: usize = 0;
+        let mut c: usize = 0;
+        let mut val: u32;
 
         while !self.stop {
-            if finger == 10 {
-                break;
-            }
-            platter = program[finger as usize];
-            println!("{:032b}", platter);
+            platter = self.memory[0][finger as usize];
 
             code = (platter >> 28) as u8;
-            println!("code: {}", code);
 
-            match code {
-                Operator::ort as u8 => {
+            match from_u8(code) {
+                Some(Operator::ort) => {
+                    a = ((platter >> 25) & 7) as usize;
+                    val = platter & 0x1ffffff;
 
-                }
+                    reg[a] = val as u32;
+                },
+                Some(code) => {
+                    a = ((platter >> 6) & 7) as usize;
+                    b = ((platter >> 3) & 7) as usize;
+                    c = (platter & 7) as usize;
+
+                    match code {
+                        Operator::cmv => {
+                            if reg[c] != 0 {
+                                reg[a] = reg[b];
+                            }
+                        },
+                        Operator::aix => reg[a] = self.memory[reg[b] as usize][reg[c] as usize],
+                        Operator::aam => self.memory[reg[a] as usize][reg[b] as usize] = reg[c],
+                        Operator::add => reg[a] = reg[b].wrapping_add(reg[c]),
+                        Operator::mul => reg[a] = reg[b].wrapping_mul(reg[c]),
+                        Operator::dvi => reg[a] = reg[b].wrapping_div(reg[c]),
+                        Operator::nad => reg[a] = !(reg[b] & reg[c]),
+                        Operator::out => {
+                            print!("{}", std::char::from_u32(reg[c]).unwrap());
+                            io::stdout().flush().unwrap();
+                        },
+                        Operator::lod => {
+                            if reg[b] != 0 {
+                                self.memory[0] = self.memory[reg[b] as usize].to_vec();
+                            }
+                            finger = reg[c] - 1;
+                        },
+                        _ => {
+                            println!("unknown code: {:?}", code);
+                            break;
+                        }
+                    }
+                },
+                None => {
+                    println!("unknown code: {}", code);
+                    break;
+                },
             }
+
+            // Machine::state(reg, code, a, b, c);
 
             finger += 1;
         }
+    }
+
+    fn state(reg: &[u32; 8], code: u8, a: usize, b: usize, c: usize) {
+        println!("{:?}({}, {}, {})", from_u8(code).unwrap(), a, b, c);
+        println!("reg {:?}", reg);
     }
 }
 
