@@ -23,12 +23,18 @@ fn from_u8(n: u8) -> Option<Operator> {
 struct Machine {
     memory: Vec<Vec<u32>>,
     reg: [u32; 8],
+    abandoned_indexes: Vec<u32>,
     stop: bool,
 }
 
 impl Machine {
     fn new() -> Machine {
-        Machine{ memory: Vec::new(), reg: [0; 8], stop: false }
+        Machine{
+            memory: vec![],
+            reg: [0; 8],
+            abandoned_indexes: vec![],
+            stop: false,
+            }
     }
 
     fn load(&mut self, filename: &str) {
@@ -87,6 +93,24 @@ impl Machine {
                         Operator::mul => reg[a] = reg[b].wrapping_mul(reg[c]),
                         Operator::dvi => reg[a] = reg[b].wrapping_div(reg[c]),
                         Operator::nad => reg[a] = !(reg[b] & reg[c]),
+                        Operator::alc => {
+                            Machine::state(reg, code, a, b, c);
+                            let new_mem = vec![0, reg[c]];
+                            match self.abandoned_indexes.pop() {
+                                Some(index) => {
+                                    self.memory[index as usize] = new_mem;
+                                    reg[b] = index;
+                                },
+                                None => {
+                                    self.memory.push(new_mem);
+                                    reg[b] = (self.memory.len()-1) as u32;
+                                },
+                            };
+                        },
+                        Operator::abd => {
+                            self.memory.remove(reg[c] as usize);
+                            self.abandoned_indexes.push(reg[c]);
+                        },
                         Operator::out => {
                             print!("{}", char::from_u32(reg[c]).unwrap());
                             io::stdout().flush().unwrap();
@@ -109,14 +133,12 @@ impl Machine {
                 },
             }
 
-            // Machine::state(reg, code, a, b, c);
-
             finger += 1;
         }
     }
 
-    fn state(reg: &[u32; 8], code: u8, a: usize, b: usize, c: usize) {
-        println!("{:?}({}, {}, {})", from_u8(code).unwrap(), a, b, c);
+    fn state(reg: &[u32; 8], code: Operator, a: usize, b: usize, c: usize) {
+        println!("{:?}({}, {}, {})", code, a, b, c);
         println!("reg {:?}", reg);
     }
 }
