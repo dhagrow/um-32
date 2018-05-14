@@ -1,20 +1,8 @@
 open System.IO
 
 type Op =
-    | cmv=0
-    | aix=1
-    | aam=2
-    | add=3
-    | mul=4
-    | dvi=5
-    | nad=6
-    | hlt=7
-    | alc=8
-    | abd=9
-    | out=10
-    | inp=11
-    | lod=12
-    | ort=13
+    | cmv=0 | aix=1 | aam=2 | add=3 | mul=4 | dvi=5 | nad=6 | hlt=7 | alc=8
+    | abd=9 | out=10 | inp=11 | lod=12 | ort=13
 
 let mutable memory = new ResizeArray<ResizeArray<uint32>>()
 let mutable reg: uint32 array = Array.zeroCreate 8
