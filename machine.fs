@@ -5,6 +5,7 @@ type Op =
     | abd=9 | out=10 | inp=11 | lod=12 | ort=13
 
 let mutable memory = new ResizeArray<ResizeArray<uint32>>()
+let mutable abandoned_indexes = new ResizeArray<uint32>()
 let mutable reg: uint32 array = Array.zeroCreate 8
 
 let load filename =
@@ -59,6 +60,21 @@ let run () =
             | Op.mul -> reg.[int a] <- reg.[int b] * reg.[int c]
             | Op.dvi -> reg.[int a] <- reg.[int b] / reg.[int c]
             | Op.nad -> reg.[int a] <- ~~~(reg.[int b] &&& reg.[int c])
+            | Op.alc ->
+                let new_array = new ResizeArray<uint32>(int reg.[int c])
+                let index =
+                    if abandoned_indexes.Count > 0 then
+                        let i = abandoned_indexes.[0]
+                        abandoned_indexes.RemoveAt(0)
+                        memory.[int i] <- new_array
+                        i
+                    else
+                        memory.Add new_array
+                        uint32 memory.Count
+                reg.[int b] <- index
+            | Op.abd ->
+                memory.[int reg.[int c]].Clear()
+                abandoned_indexes.Add reg.[int c]
             | Op.out ->
                 printf "%c" (char reg.[int c])
                 stdout.Flush()
