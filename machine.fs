@@ -95,5 +95,9 @@ let run () =
         finger <- finger + 1ul
         cycle <- cycle + 1ul
 
+
+// allow ctrl-c to kill
+System.Console.CancelKeyPress.Add(fun _ -> ())
+
 load @"scrolls/sandmark.umz"
 run()
