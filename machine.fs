@@ -98,9 +98,16 @@ let run () =
         finger <- finger + 1ul
         cycle <- cycle + 1ul
 
+[<EntryPoint>]
+let main argv =
+    // allow ctrl-c to kill
+    System.Console.CancelKeyPress.Add(fun _ -> ())
 
-// allow ctrl-c to kill
-System.Console.CancelKeyPress.Add(fun _ -> ())
-
-load @"scrolls/codex.umz"
-run()
+    match argv with
+    | [|first|] ->
+        load first
+        run()
+        0
+    | _ ->
+        printfn "usage: machine <source>"
+        1
