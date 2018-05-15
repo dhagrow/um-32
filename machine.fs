@@ -4,22 +4,31 @@ type Op =
     | cmv=0 | aix=1 | aam=2 | add=3 | mul=4 | dvi=5 | nad=6 | hlt=7 | alc=8
     | abd=9 | out=10 | inp=11 | lod=12 | ort=13
 
-let mutable memory = new ResizeArray<ResizeArray<uint32>>()
+let mutable memory = new ResizeArray<uint32 array>()
 let mutable abandoned_indexes = new ResizeArray<uint32>()
 let mutable reg: uint32 array = Array.zeroCreate 8
 
 let load filename =
-    let mutable program = new ResizeArray<uint32>()
+    let mutable program: uint32 array =
+        Array.zeroCreate (int (FileInfo(filename).Length / 4L))
     let fp = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read)
     let reader = new BinaryReader(fp)
+    let mutable index = 0
     try
         while true do
             let platter = reader.ReadInt32() |> System.Net.IPAddress.HostToNetworkOrder
-            program.Add (uint32 platter)
+            program.[index] <- uint32 platter
+            index <- index + 1
     with
     | :? System.IO.EndOfStreamException -> ()
 
     memory.Add program
+
+let state code a b c =
+    printfn "%u(%u, %u, %u)" code a b c
+    printfn "reg: %A" reg
+    printfn "mem: %A" [for x in memory do yield x.Length]
+    printfn "abd: %A" abandoned_indexes
 
 let run () =
     let mutable finger = 0ul
@@ -33,7 +42,7 @@ let run () =
     let mutable c = 0uy
     let mutable value = 0ul
 
-    while not stop && (int finger) < memory.[0].Count do
+    while not stop && (int finger) < memory.[0].Length do
         // printfn "cycle: %u" cycle
         platter <- memory.[0].[int finger]
         code <- uint8 (platter >>> 28)
@@ -49,9 +58,6 @@ let run () =
             b <- (uint8 (platter >>> 3)) &&& 7uy
             c <- (uint8 platter) &&& 7uy
 
-            // printfn "%u(%u, %u, %u)" code a b c
-            // printfn "reg: %A" reg
-
             match enum<Op>(int32 code) with
             | Op.cmv -> if reg.[int c] <> 0ul then reg.[int a] <- reg.[int b]
             | Op.aix -> reg.[int a] <- memory.[int reg.[int b]].[int reg.[int c]]
@@ -61,7 +67,7 @@ let run () =
             | Op.dvi -> reg.[int a] <- reg.[int b] / reg.[int c]
             | Op.nad -> reg.[int a] <- ~~~(reg.[int b] &&& reg.[int c])
             | Op.alc ->
-                let new_array = new ResizeArray<uint32>(int reg.[int c])
+                let new_array = Array.zeroCreate (int reg.[int c])
                 let index =
                     if abandoned_indexes.Count > 0 then
                         let i = abandoned_indexes.[0]
@@ -70,17 +76,17 @@ let run () =
                         i
                     else
                         memory.Add new_array
-                        uint32 memory.Count
+                        uint32 memory.Count - 1ul
                 reg.[int b] <- index
             | Op.abd ->
-                memory.[int reg.[int c]].Clear()
+                memory.[int reg.[int c]] <- Array.empty
                 abandoned_indexes.Add reg.[int c]
             | Op.out ->
                 printf "%c" (char reg.[int c])
                 stdout.Flush()
             | Op.lod ->
                 if reg.[int b] <> 0ul then
-                    memory.[0] <- new ResizeArray<uint32>(memory.[int reg.[int b]])
+                    memory.[0] <- Array.copy memory.[int reg.[int b]]
                 finger <- reg.[int c] - 1ul
             | _ ->
                 printfn "unknown code: %u" code
