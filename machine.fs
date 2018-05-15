@@ -1,3 +1,4 @@
+open System
 open System.IO
 
 type Op =
@@ -66,6 +67,7 @@ let run () =
             | Op.mul -> reg.[int a] <- reg.[int b] * reg.[int c]
             | Op.dvi -> reg.[int a] <- reg.[int b] / reg.[int c]
             | Op.nad -> reg.[int a] <- ~~~(reg.[int b] &&& reg.[int c])
+            | Op.hlt -> stop <- true
             | Op.alc ->
                 let new_array = Array.zeroCreate (int reg.[int c])
                 let index =
@@ -84,6 +86,7 @@ let run () =
             | Op.out ->
                 printf "%c" (char reg.[int c])
                 stdout.Flush()
+            | Op.inp -> reg.[int c] <- uint32 (Console.ReadKey()).KeyChar
             | Op.lod ->
                 if reg.[int b] <> 0ul then
                     memory.[0] <- Array.copy memory.[int reg.[int b]]
@@ -99,5 +102,5 @@ let run () =
 // allow ctrl-c to kill
 System.Console.CancelKeyPress.Add(fun _ -> ())
 
-load @"scrolls/sandmark.umz"
+load @"scrolls/codex.umz"
 run()
