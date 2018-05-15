@@ -64,6 +64,10 @@ proc run() =
           reg[a] = reg[b]
       of ord(add):
         reg[a] = reg[b] + reg[c]
+      of ord(lod):
+        if reg[b] != 0:
+          shallowCopy(memory[0], memory[reg[b]])
+        finger = reg[c] + 1
       else:
         echo &"unknown code: {code}"
         break
