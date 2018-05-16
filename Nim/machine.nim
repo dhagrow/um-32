@@ -1,3 +1,4 @@
+import os
 import endians
 import streams
 import strformat
@@ -98,5 +99,8 @@ proc run() =
     inc(finger)
 
 when isMainModule:
-  load("scrolls/sandmark.umz")
-  run()
+  if paramCount() < 1:
+    echo "usage: machine <source>"
+  else:
+    load(paramStr(1))
+    run()
