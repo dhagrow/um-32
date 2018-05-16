@@ -88,6 +88,8 @@ proc run() =
       of ord(otp):
         stdout.write(char reg[c])
         flushFile(stdout)
+      of ord(inp):
+        reg[c] = uint32 readChar(stdin)
       of ord(lod):
         if reg[b] != 0:
           memory[0] = memory[int reg[b]]
