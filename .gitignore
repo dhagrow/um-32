@@ -1,3 +1,9 @@
+machine
+
+FSharp.Core.dll
+
+nimcache/
+
 __pycache__/
 
 target/
