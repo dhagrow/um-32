@@ -1,13 +1,13 @@
-all: machine-c machine-fs machine-nim
+all: machine-c machine-nim machine-rust #machine-fs
 
-machine-c: machine.c
-	gcc -o machine-c machine.c
+machine-c:
+	$(MAKE) -C C
 
-machine-fs: machine.fs
-	fsharpc -o machine-fs machine.fs
+machine-fs:
+	$(MAKE) -C F#
 
-machine-fs-docker:
-	fsharp bash -c "fsharpc machine.fs && mono ./machine.exe"
+machine-nim:
+	$(MAKE) -C Nim
 
-machine-nim: machine.nim
-	nim c -o:machine-nim machine.nim
+machine-rust:
+	$(MAKE) -C Rust
