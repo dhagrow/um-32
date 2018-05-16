@@ -47,27 +47,35 @@ proc run() =
     of ord(ort):
       a = uint8((platter shr 25) and 7)
       value = platter and 0x1ffffff
-      echo &"{code}({a}, {value})"
-      echo &"reg: {reg}"
+      # echo &"{code}({a}, {value})"
+      # echo &"reg: {reg}"
 
       reg[a] = value
     else:
       a = uint8((platter shr 6) and 7)
       b = uint8((platter shr 3) and 7)
       c = uint8(platter and 7)
-      echo &"{code}({a}, {b}, {c})"
-      echo &"reg: {reg}"
+      # echo &"{code}({a}, {b}, {c})"
+      # echo &"reg: {reg}"
 
       case code
       of ord(cmv):
         if reg[c] != 0:
           reg[a] = reg[b]
-      of ord(add):
-        reg[a] = reg[b] + reg[c]
+      of ord(aix): reg[a] = memory[int reg[b]][int reg[c]]
+      of ord(aam): memory[int reg[a]][int reg[b]] = reg[c]
+      of ord(add): reg[a] = reg[b] + reg[c]
+      of ord(mul): reg[a] = reg[b] * reg[c]
+      of ord(dvi): reg[a] = reg[b] div reg[c]
+      of ord(nad): reg[a] = not (reg[b] and reg[c])
+      of ord(hlt): stop = true
+      of ord(otp):
+        stdout.write(char reg[c])
+        flushFile(stdout)
       of ord(lod):
         if reg[b] != 0:
-          shallowCopy(memory[0], memory[reg[b]])
-        finger = reg[c] + 1
+          memory[0] = memory[int reg[b]]
+        finger = reg[c] - 1
       else:
         echo &"unknown code: {code}"
         break
