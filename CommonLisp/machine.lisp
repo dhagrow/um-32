@@ -1,12 +1,23 @@
 (defconstant +buffer-size+ 4096)
 
-(defun load-um (filename)
-  (with-open-file (in filename :direction :input
-                                  :element-type '(unsigned-byte 8))
-    (loop with buffer = (make-array +buffer-size+
-                                    :element-type (stream-element-type in))
-          for size = (read-sequence buffer in)
-          while (plusp size)
-          do (print buffer))))
+(defun read-uint32 (stream)
+  (loop repeat 4
+        for offset from 0 by 8
+        for value = (read-byte stream nil)
+          then (logior (ash (read-byte stream) offset) value)
+        finally (return value)))
 
-(load-um "scrolls/sandmark.umz")
+(defun load-um (filename)
+  (with-open-file (fp filename :direction :input
+                      :element-type '(unsigned-byte 8))
+    (loop for platter = (read-uint32 fp)
+          while platter
+          do (print platter))))
+
+;; (load-um "scrolls/sandmark.umz")
+
+;; recursive-p ?
+(with-open-file (stream "docs/key.txt" :direction :input
+  (loop for line = (read-line stream nil nil)
+        while line
+        do (print line) )
