@@ -1,5 +1,5 @@
 (defvar memory)
-(setq memory (list '()))
+(setf memory (list '()))
 
 (defun read-uint32 (stream)
   (logior (ash (read-byte stream) 24)
@@ -16,22 +16,19 @@
           do (setf (nth 0 memory) (append (nth 0 memory) (list platter))))))
 
 (defun run ()
-  (defvar a)
-  (defvar b)
-  (defvar c)
-  (defvar val)
-
   (loop for platter in (nth 0 memory)
     for code = (ash platter -28)
     do
-      (if (eql code 13) (progn
-        (setq a (ash platter -25))
-        (setq val (logand platter #x1ffffff))
-        (format t "a=~d val=~d~%" a val))
-      (format t "~d~%" code))))
+      (if (eql code 13) (let (
+        (a (logand (ash platter -25) 7))
+        (val (logand platter #x1ffffff)))
+          (format t "code=~d a=~d val=~d~%" code a val))
+      (let (
+        (a (logand (ash platter -6) 7))
+        (b (logand (ash platter -3) 7))
+        (c (logand platter 7)))
+        (format t "code=~d a=~d b=~d~%" code a b)))))
 
-    ;; if (eql code 13) (format t "code[13]~%")
-    ;; else (format t "code[~d]~%" code)
 (load-um "scrolls/sandmark.umz")
 (run)
 ;; (print program)
