@@ -1,5 +1,8 @@
 (defvar memory)
+(defvar reg)
+
 (setf memory (list '()))
+(setf reg (make-array '(8) :initial-element 0))
 
 (defun read-uint32 (stream)
   (logior (ash (read-byte stream) 24)
@@ -22,14 +25,25 @@
       (if (eql code 13) (let (
         (a (logand (ash platter -25) 7))
         (val (logand platter #x1ffffff)))
+        (progn
+          (format t "reg=~d~%" reg)
           (format t "code=~d a=~d val=~d~%" code a val))
+          (setf (aref reg a) val))
       (let (
         (a (logand (ash platter -6) 7))
         (b (logand (ash platter -3) 7))
         (c (logand platter 7)))
-        (format t "code=~d a=~d b=~d~%" code a b)))))
+        (progn
+          (format t "reg=~d~%" reg)
+          (format t "code=~d a=~d b=~d c=~d~%" code a b c)
+          (ccase code
+          (0 (if
+            (not (eql (aref reg c) 0))
+              (setf (aref reg a) (aref reg b))))
+          (3 (setf (aref reg a) (+ (aref reg b) (aref reg c))))))))))
 
 (load-um "scrolls/sandmark.umz")
 (run)
 ;; (print program)
 ;; format t "~32,'0b~%" platter
+;; format t "code=~d a=~d b=~d c=~d~%" code a b c
