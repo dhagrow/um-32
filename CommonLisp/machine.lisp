@@ -33,7 +33,6 @@
         (let ((a (logand (ash platter -6) 7))
               (b (logand (ash platter -3) 7))
               (c (logand platter 7)))
-          (declare ((unsigned-byte 32) a b c))
           (format t "finger=~d reg=~d~%" finger reg)
           (format t "code=~d a=~d b=~d c=~d~%" code a b c)
           (ccase code
@@ -42,7 +41,7 @@
           (3 (setf (aref reg a) (mod (+ (aref reg b) (aref reg c)) (expt 2 32))))
           (4 (setf (aref reg a) (mod (* (aref reg b) (aref reg c)) (expt 2 32))))
           (5 (setf (aref reg a) (floor (aref reg b) (aref reg c))))
-          (6 (setf (aref reg a) (lognand (aref reg b) (aref reg c))))
+          (6 (setf (aref reg a) (mod (lognand (aref reg b) (aref reg c)) (expt 2 32))))
           (10 (format t "~d" (code-char (aref reg c))))
           (12 (progn
             (if (not (eql (aref reg b) 0))
@@ -55,3 +54,7 @@
 ;; (print program)
 ;; format t "~32,'0b~%" platter
 ;; format t "code=~d a=~d b=~d c=~d~%" code a b c
+
+;; 14:00 < chris> you can write a macro to expand this: (demacro (uint32 n) `(logand #xFFFFFFFF ,n))
+;; 14:00 < chris> but the cool thing is that you can also expand at compile-time
+;; 14:01 < chris> (demacro (uint32 n) (assert (eql 'fixnum (type-of n))) (logand #xFFFFFFFF n))
