@@ -1,8 +1,10 @@
 (defvar memory)
 (defvar reg)
+(defvar op)
 
 (setf memory (list '()))
 (setf reg (make-array '(8) :element-type '(unsigned-byte 32) :initial-element 0))
+(setq op (make-array 14 :initial-contents '(cmv aix aam add mul dvi nad hlt alc abd out inp lod ort)))
 
 (defun read-uint32 (stream)
   (logior (ash (read-byte stream) 24)
@@ -35,17 +37,17 @@
               (c (logand platter 7)))
           ;; (format t "finger=~d reg=~d~%" finger reg)
           ;; (format t "code=~d a=~d b=~d c=~d~%" code a b c)
-          (ccase code
-          (0 (if (not (eql (aref reg c) 0))
+          (ccase (aref op code)
+          (cmv (if (not (eql (aref reg c) 0))
             (setf (aref reg a) (aref reg b))))
-          (1 (setf (aref reg a) (nth (aref reg c) (nth (aref reg b) memory))))
-          (2 (setf (nth (aref reg b) (nth (aref reg a) memory)) (aref reg c)))
-          (3 (setf (aref reg a) (mod (+ (aref reg b) (aref reg c)) (expt 2 32))))
-          (4 (setf (aref reg a) (mod (* (aref reg b) (aref reg c)) (expt 2 32))))
-          (5 (setf (aref reg a) (floor (aref reg b) (aref reg c))))
-          (6 (setf (aref reg a) (mod (lognand (aref reg b) (aref reg c)) (expt 2 32))))
-          (10 (format t "~d" (code-char (aref reg c))))
-          (12 (progn
+          (aix (setf (aref reg a) (nth (aref reg c) (nth (aref reg b) memory))))
+          (aam (setf (nth (aref reg b) (nth (aref reg a) memory)) (aref reg c)))
+          (add (setf (aref reg a) (mod (+ (aref reg b) (aref reg c)) (expt 2 32))))
+          (mul (setf (aref reg a) (mod (* (aref reg b) (aref reg c)) (expt 2 32))))
+          (dvi (setf (aref reg a) (floor (aref reg b) (aref reg c))))
+          (nad (setf (aref reg a) (mod (lognand (aref reg b) (aref reg c)) (expt 2 32))))
+          (out (format t "~d" (code-char (aref reg c))))
+          (lod (progn
             (if (not (eql (aref reg b) 0))
               (setf (nth 0 memory) (copy-list (nth (aref reg b) memory))))
             (setq finger (- (aref reg c) 1)))))))
