@@ -70,9 +70,12 @@
             (setq finger (- (aref reg c) 1)))))))
         (incf finger)))))
 
-(load-um "scrolls/sandmark.umz")
-(run)
-;; (print program)
+(if (<= (list-length sb-ext:*posix-argv*) 1)
+    (princ "usage: machine <source>")
+    (progn
+      (load-um (nth 1 sb-ext:*posix-argv*))
+      (run)))
+
 ;; format t "~32,'0b~%" platter
 ;; format t "code=~d a=~d b=~d c=~d~%" code a b c
 
