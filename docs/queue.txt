@@ -1,0 +1,17 @@
+D
+Go
+Pixie
+Clojure
+Gravity
+Wren
+TypeScript
+Lua
+Haxe
+Scala
+Elixir
+Factor
+Assembly
+Haskell
+Kotlin
+Pascal
+Racket
