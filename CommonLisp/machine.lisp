@@ -29,10 +29,11 @@
           (incf i)))))
 
 (defun run ()
-  (let ((finger 0))
+  (let ((finger 0) (stop nil))
     (loop
       for platter = (aref (aref memory 0) finger)
       for code = (ash platter -28)
+      while (not stop)
       do (progn
         (if (eql code 13)
           (let ((a (logand (ash platter -25) 7))
@@ -59,6 +60,7 @@
               (dvi (setf (aref reg a) (floor (aref reg b) (aref reg c))))
               (nad (setf (aref reg a)
                         (uint32 (lognand (aref reg b) (aref reg c)))))
+              (hlt (setq stop t))
               (alc (let ((index (pop abandoned-indexes))
                         (new-array (make-array (aref reg c)
                                                :initial-element 0)))
@@ -72,6 +74,7 @@
               (abd (progn (setf (aref memory (aref reg c)) nil)
                           (push (aref reg c) abandoned-indexes)))
               (out (princ (code-char (aref reg c))) (force-output))
+              (inp (setf (aref reg c) (char-int (read-char))))
               (lod (progn
                 (if (not (eql (aref reg b) 0))
                   (setf (aref memory 0)
