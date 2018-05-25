@@ -1,0 +1,8 @@
+14:00 < chris> you can write a macro to expand this: (demacro (uint32 n) `(logand #xFFFFFFFF ,n))
+14:00 < chris> but the cool thing is that you can also expand at compile-time
+14:01 < chris> (demacro (uint32 n) (assert (eql 'fixnum (type-of n))) (logand #xFFFFFFFF n))
+
+09:30 < chris> (require :sb-sprof)
+09:30 < chris> (sb-sprof:with-profiling (:max-samples 10000 :report :flat)
+09:30 < chris> (your-entry-function-here))
+09:31 < chris> you can just (time ..) to begin with
