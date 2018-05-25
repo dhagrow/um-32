@@ -1,0 +1,13 @@
+# XPS 13 (2015)
+
+## C
+
+real	0m55.033s
+user	0m54.112s
+sys		0m0.753s
+
+## CommonLisp
+
+real	5m40.701s
+user	5m38.558s
+sys		0m0.754s
