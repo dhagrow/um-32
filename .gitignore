@@ -1,4 +1,5 @@
 machine
+machine.o
 
 FSharp.Core.dll
 
