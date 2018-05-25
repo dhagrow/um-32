@@ -11,3 +11,9 @@ sys		0m0.753s
 real	5m40.701s
 user	5m38.558s
 sys		0m0.754s
+
+## PyPy
+
+real	4m59.600s
+user	4m57.468s
+sys	0m1.079s
