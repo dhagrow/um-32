@@ -37,15 +37,34 @@ void run() {
             // writefln("%s(%s, %s, %s)", op, a, b, c);
 
             switch (op) {
-                case Op.cmv:
+                case Op.cmv: // 00
                     if (reg[c] != 0) {
                         reg[a] = reg[b];
                     }
                     break;
-                case Op.add:
+                case Op.aix: // 01
+                    reg[a] = memory[reg[b]][reg[c]];
+                    break;
+                case Op.aam: // 02
+                    memory[reg[a]][reg[b]] = reg[c];
+                    break;
+                case Op.add: // 03
                     reg[a] = (reg[b] + reg[c]) % (1UL << 32);
                     break;
-                case Op.lod:
+                case Op.mul: // 04
+                    reg[a] = (reg[b] * reg[c]) % (1UL << 32);
+                    break;
+                case Op.dvi: // 05
+                    reg[a] = reg[b] / reg[c];
+                    break;
+                case Op.nad: // 06
+                    reg[a] = (reg[b] & reg[c]) ^ ((1UL << 32) - 1);
+                    break;
+                case Op.otp: // 10
+                    putchar(reg[c]);
+                    stdout.flush();
+                    break;
+                case Op.lod: // 12
                     if (reg[b] != 0) {
                         memory[0] = memory[reg[b]];
                     }
