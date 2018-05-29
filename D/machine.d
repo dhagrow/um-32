@@ -1,4 +1,4 @@
-import std.conv, std.stdio, std.stdint, std.format, std.container;
+import std.conv, std.stdio, std.stdint, std.bitmanip, std.format, std.container;
 
 auto memory = new uint32_t[][](0, 0);
 
@@ -46,8 +46,9 @@ void load() {
 
     File f = File("scrolls/sandmark.umz");
     while (!f.eof()) {
-        auto platter = *cast(uint32_t*) f.rawRead(new ubyte[4]);
-        memory[0] ~= platter;
+        auto chunk = *cast(uint32_t*) f.rawRead(new ubyte[4]);
+        auto platter = nativeToBigEndian(chunk);
+        memory[0] ~= *cast(uint32_t*) platter;
     }
 }
 
