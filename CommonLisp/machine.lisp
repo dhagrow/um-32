@@ -5,7 +5,7 @@
 
 (setf abandoned-indexes '())
 (setf reg (make-array '(8) :element-type '(unsigned-byte 32) :initial-element 0))
-(setq op (make-array 14 :initial-contents '(cmv aix aam add mul dvi nad hlt alc abd out inp lod ort)))
+(setq op (make-array 14 :initial-contents '(cmv aix aam add mul dvi nad hlt alc abd otp inp lod ort)))
 
 (defmacro uint32 (n) `(logand #xFFFFFFFF ,n))
 
@@ -73,7 +73,7 @@
                     (setf (aref reg b) index)))
               (abd (progn (setf (aref memory (aref reg c)) nil)
                           (push (aref reg c) abandoned-indexes)))
-              (out (princ (code-char (aref reg c))) (force-output))
+              (otp (princ (code-char (aref reg c))) (force-output))
               (inp (setf (aref reg c) (char-int (read-char))))
               (lod (progn
                 (if (not (eql (aref reg b) 0))

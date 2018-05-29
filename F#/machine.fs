@@ -3,7 +3,7 @@ open System.IO
 
 type Op =
     | cmv=0 | aix=1 | aam=2 | add=3 | mul=4 | dvi=5 | nad=6 | hlt=7 | alc=8
-    | abd=9 | out=10 | inp=11 | lod=12 | ort=13
+    | abd=9 | otp=10 | inp=11 | lod=12 | ort=13
 
 let mutable memory = new ResizeArray<uint32 array>()
 let mutable abandoned_indexes = new ResizeArray<uint32>()
@@ -83,7 +83,7 @@ let run () =
             | Op.abd ->
                 memory.[int reg.[int c]] <- Array.empty
                 abandoned_indexes.Add reg.[int c]
-            | Op.out ->
+            | Op.otp ->
                 printf "%c" (char reg.[int c])
                 stdout.Flush()
             | Op.inp -> reg.[int c] <- uint32 (Console.ReadKey()).KeyChar

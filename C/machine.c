@@ -18,7 +18,7 @@ uint32_t finger;
 uint32_t reg[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 enum Operators {
-    cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, out, inp, lod, ort};
+    cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, otp, inp, lod, ort};
 
 uint32_t new_array(uint32_t size) {
     uint32_t index;
@@ -110,7 +110,7 @@ void run(uint32_t limit) {
         case abd: // 09
             free_array(reg[c]);
             break;
-        case out: // 10
+        case otp: // 10
             putchar(reg[c]);
             fflush(stdout);
             break;

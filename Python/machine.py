@@ -194,7 +194,7 @@ def abd(_a, _b, c):
     del memory[index][:]
     abandoned_indexes.add(index)
 
-def out(_a, _b, c):
+def otp(_a, _b, c):
     """
     #10. Output.
 
@@ -252,7 +252,7 @@ def ort(a, value):
     reg[a] = value
 
 operators = [
-    cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, out, inp, lod, ort]
+    cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, otp, inp, lod, ort]
 
 ##
 ## entry

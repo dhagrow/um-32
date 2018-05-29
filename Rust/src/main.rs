@@ -10,7 +10,7 @@ use std::io::prelude::*;
 #[allow(non_camel_case_types)]
 #[derive(Debug)]
 enum Operator {
-    cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, out, inp, lod, ort,
+    cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, otp, inp, lod, ort,
 }
 
 fn operator_from_u8(n: u8) -> Option<Operator> {
@@ -112,7 +112,7 @@ impl Machine {
                             self.memory[reg[c] as usize].clear();
                             self.abandoned_indexes.push(reg[c]);
                         },
-                        Operator::out => {
+                        Operator::otp => {
                             print!("{}", char::from_u32(reg[c]).unwrap());
                             io::stdout().flush().unwrap();
                         },
