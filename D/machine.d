@@ -1,6 +1,8 @@
-import std.conv, std.stdio, std.stdint, std.bitmanip, std.format, std.container;
+import std.conv, std.stdio, std.stdint, std.bitmanip, std.format,
+    std.container, std.algorithm.mutation, std.range.primitives;
 
 auto memory = new uint32_t[][](0, 0);
+auto abandoned_indexes = new uint32_t[](0);
 uint32_t[8] reg;
 
 enum Op {cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, otp, inp, lod, ort};
@@ -59,6 +61,23 @@ void run() {
                     break;
                 case Op.nad: // 06
                     reg[a] = (reg[b] & reg[c]) ^ ((1UL << 32) - 1);
+                    break;
+                case Op.alc: // 08
+                    uint32_t index;
+                    auto new_array = new uint32_t[](reg[c]);
+                    fill(new_array, 0);
+                    if (abandoned_indexes.length != 0) {
+                        index = abandoned_indexes.moveFront();
+                        memory[index] = new_array;
+                    } else {
+                        memory ~= new_array;
+                        index = to!uint32_t(memory.length) - 1;
+                    }
+                    reg[b] = index;
+                    break;
+                case Op.abd: // 09
+                    memory[reg[c]].length = 0;
+                    abandoned_indexes ~= reg[c];
                     break;
                 case Op.otp: // 10
                     putchar(reg[c]);
