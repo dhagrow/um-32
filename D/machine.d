@@ -7,7 +7,7 @@ uint32_t[8] reg;
 
 enum Op {cmv, aix, aam, add, mul, dvi, nad, hlt, alc, abd, otp, inp, lod, ort};
 
-void run() {
+void run(int limit) {
     bool stop = false;
     auto cycle = 0;
     uint32_t finger = 0;
@@ -78,8 +78,7 @@ void run() {
                     break;
                 case Op.abd: // 09
                     memory[reg[c]].length = 0;
-                    abandoned_indexes.length++;
-                    abandoned_indexes[abandoned_indexes.length - 1] = reg[c];
+                    abandoned_indexes ~= reg[c];
                     break;
                 case Op.otp: // 10
                     putchar(reg[c]);
@@ -96,18 +95,20 @@ void run() {
             }
         }
 
+        if (limit && cycle == limit) {
+            break;
+        }
+
         ++finger;
         ++cycle;
     }
 }
 
-void load() {
-    memory.assumeSafeAppend();
+void load(string source) {
     memory.length = 0;
     memory.length = 1;
-    memory[0].assumeSafeAppend();
 
-    File f = File("scrolls/sandmark.umz");
+    File f = File(source);
     while (!f.eof()) {
         auto chunk = *cast(uint32_t*) f.rawRead(new ubyte[4]);
         auto platter = nativeToBigEndian(chunk);
@@ -115,7 +116,11 @@ void load() {
     }
 }
 
-void main() {
-    load();
-    run();
+void main(string[] args) {
+    if (args.length < 2 || args.length > 3) {
+        writeln("usage: machine <source> [cycle-limit]");
+        return;
+    }
+    load(args[1]);
+    run((args.length == 3) ? to!int(args[2]) : 0);
 }
