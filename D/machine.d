@@ -1,4 +1,4 @@
-import std.conv, std.stdio, std.stdint, std.bitmanip, std.format,
+import std.conv, std.array, std.stdio, std.stdint, std.bitmanip, std.format,
     std.container, std.algorithm.mutation, std.range.primitives;
 
 auto memory = new uint32_t[][](0, 0);
@@ -67,7 +67,8 @@ void run() {
                     auto new_array = new uint32_t[](reg[c]);
                     fill(new_array, 0);
                     if (abandoned_indexes.length != 0) {
-                        index = abandoned_indexes.moveFront();
+                        index = abandoned_indexes.back;
+                        abandoned_indexes.popBack();
                         memory[index] = new_array;
                     } else {
                         memory ~= new_array;
@@ -77,7 +78,8 @@ void run() {
                     break;
                 case Op.abd: // 09
                     memory[reg[c]].length = 0;
-                    abandoned_indexes ~= reg[c];
+                    abandoned_indexes.length++;
+                    abandoned_indexes[abandoned_indexes.length - 1] = reg[c];
                     break;
                 case Op.otp: // 10
                     putchar(reg[c]);
@@ -85,7 +87,7 @@ void run() {
                     break;
                 case Op.lod: // 12
                     if (reg[b] != 0) {
-                        memory[0] = memory[reg[b]];
+                        memory[0] = array(memory[reg[b]]);
                     }
                     finger = reg[c] - 1;
                     break;
@@ -100,8 +102,10 @@ void run() {
 }
 
 void load() {
+    memory.assumeSafeAppend();
     memory.length = 0;
     memory.length = 1;
+    memory[0].assumeSafeAppend();
 
     File f = File("scrolls/sandmark.umz");
     while (!f.eof()) {
