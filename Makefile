@@ -1,5 +1,5 @@
-all: machine-c machine-d machine-fs machine-nim machine-rust
-clean: machine-c-clean machine-d-clean machine-fs-clean machine-nim-clean machine-rust-clean
+all: machine-c machine-d machine-fs machine-go machine-nim machine-rust
+clean: machine-c-clean machine-d-clean machine-fs-clean machine-go-clean machine-nim-clean machine-rust-clean
 
 machine-c:
 	$(MAKE) -C C
@@ -15,6 +15,11 @@ machine-fs:
 	$(MAKE) -C F#
 machine-fs-clean:
 	$(MAKE) -C F# clean
+
+machine-go:
+	$(MAKE) -C Go
+machine-go-clean:
+	$(MAKE) -C Go clean
 
 machine-nim:
 	$(MAKE) -C Nim
