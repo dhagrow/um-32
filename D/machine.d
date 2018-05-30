@@ -62,6 +62,9 @@ void run(int limit) {
                 case Op.nad: // 06
                     reg[a] = (reg[b] & reg[c]) ^ ((1UL << 32) - 1);
                     break;
+                case Op.hlt: // 07
+                    stop = true;
+                    break;
                 case Op.alc: // 08
                     uint32_t index;
                     auto new_array = new uint32_t[](reg[c]);
@@ -83,6 +86,9 @@ void run(int limit) {
                 case Op.otp: // 10
                     putchar(reg[c]);
                     stdout.flush();
+                    break;
+                case Op.inp: // 11
+                    reg[c] = getchar();
                     break;
                 case Op.lod: // 12
                     if (reg[b] != 0) {
