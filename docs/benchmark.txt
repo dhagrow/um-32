@@ -6,14 +6,30 @@ real	0m55.033s
 user	0m54.112s
 sys		0m0.753s
 
+real	1m21.108s
+user	1m16.169s
+sys		0m2.227s
+
 ## CommonLisp
 
 real	5m40.701s
 user	5m38.558s
 sys		0m0.754s
 
+## D
+
+real	2m9.568s
+user	2m7.923s
+sys		0m0.356s
+
+## Nim
+
+real	4m14.611s
+user	4m10.351s
+sys		0m0.753s
+
 ## PyPy
 
 real	4m59.600s
 user	4m57.468s
-sys	0m1.079s
+sys		0m1.079s
