@@ -1,4 +1,3 @@
-D
 Go
 Pixie
 Clojure
