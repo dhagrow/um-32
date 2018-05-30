@@ -5,11 +5,26 @@ import (
 	"fmt"
 	"log"
     "os"
-    "bytes"
     "encoding/binary"
 )
 
-func main() {
+var memory []uint32
+
+func run() {
+    var finger uint32
+    var platter uint32
+    var code uint8
+
+    for {
+        platter = memory[finger]
+        code = uint8(platter >> 28)
+
+        fmt.Printf("%d\n", code)
+        finger++
+    }
+}
+
+func load() {
 	path := "scrolls/sandmark.umz"
 
 	file, err := os.Open(path)
@@ -17,24 +32,23 @@ func main() {
 		log.Fatal("Error while opening file", err)
     }
 
-    chunk := make([]byte, 4)
-    var platter uint32
+    platter := make([]byte, 4)
 
     for {
-        _, err = file.Read(chunk)
+        _, err = file.Read(platter)
         if err == io.EOF {
             break
         } else if err != nil {
             log.Fatal(err)
         }
 
-        buf := bytes.NewReader(chunk)
-        binary.Read(buf, binary.BigEndian, &platter)
-
-        fmt.Printf("platter: %d\n", platter)
+        memory = append(memory, binary.BigEndian.Uint32(platter))
     }
 
 	defer file.Close()
+}
 
-	fmt.Printf("%s opened\n", path)
+func main() {
+    load()
+    run()
 }
