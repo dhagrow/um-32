@@ -9,6 +9,7 @@ import (
 )
 
 var memory [][]uint32
+var abandoned_indexes []uint32
 var reg [8]uint32
 
 type op int
@@ -71,6 +72,22 @@ func run() {
 				reg[a] = reg[b] / reg[c]
 			case nad: // 06
 				reg[a] = (reg[b] & reg[c]) ^ ((1 << 32) - 1)
+			case alc: // 08
+				var index uint32
+				var newArray = make([]uint32, reg[c])
+
+				if len(abandoned_indexes) > 0 {
+					index = abandoned_indexes[0]
+					abandoned_indexes = abandoned_indexes[1:]
+					memory[index] = newArray
+				} else {
+					index = uint32(len(memory))
+					memory = append(memory, newArray)
+				}
+				reg[b] = index
+			case abd: // 09
+				memory[reg[c]] = nil
+				abandoned_indexes = append(abandoned_indexes, reg[c])
 			case otp: // 10
 				fmt.Print(string(reg[c]))
 			case lod: // 12
