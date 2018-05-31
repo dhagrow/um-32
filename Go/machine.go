@@ -9,7 +9,7 @@ import (
 )
 
 var memory [][]uint32
-var abandoned_indexes []uint32
+var abandonedIndexes []uint32
 var reg [8]uint32
 
 type op int
@@ -31,6 +31,13 @@ const (
 	ort
 )
 
+func state(finger uint32, cycle int, code uint8, a uint8, b uint8, c uint8, val uint32) {
+	fmt.Printf("\nSTOP at %d (cycle %d)\n", finger, cycle)
+	fmt.Printf("op|%d(%d, %d, %d, %d)\n", code, a, b, c, val)
+	fmt.Printf("reg %v\n", reg)
+	fmt.Printf("memory: {0: %d}\n", len(memory[0]))
+}
+
 func run() {
 	cycle := 0
 	var finger uint32
@@ -42,6 +49,10 @@ func run() {
 	var val uint32
 
 	for {
+		if finger >= uint32(len(memory[0])) {
+			state(finger, cycle, code, a, b, c, val)
+			log.Fatal("out of range: ", finger)
+		}
 		platter = memory[0][finger]
 		code = uint8(platter >> 28)
 
@@ -76,9 +87,9 @@ func run() {
 				var index uint32
 				var newArray = make([]uint32, reg[c])
 
-				if len(abandoned_indexes) > 0 {
-					index = abandoned_indexes[0]
-					abandoned_indexes = abandoned_indexes[1:]
+				if len(abandonedIndexes) > 0 {
+					index = abandonedIndexes[0]
+					abandonedIndexes = abandonedIndexes[1:]
 					memory[index] = newArray
 				} else {
 					index = uint32(len(memory))
@@ -87,16 +98,18 @@ func run() {
 				reg[b] = index
 			case abd: // 09
 				memory[reg[c]] = nil
-				abandoned_indexes = append(abandoned_indexes, reg[c])
+				abandonedIndexes = append(abandonedIndexes, reg[c])
 			case otp: // 10
 				fmt.Print(string(reg[c]))
 			case lod: // 12
 				if reg[b] != 0 {
+					// have to expand the dst array first
+					memory[0] = make([]uint32, len(memory[reg[b]]))
 					copy(memory[0], memory[reg[b]])
 				}
 				finger = reg[c] - 1
 			default:
-				fmt.Printf("\n%d(%d, %d, %d, %d)\n", code, a, b, c, val)
+				state(finger, cycle, code, a, b, c, val)
 				log.Fatal("unknown op: ", op(code))
 			}
 		}
