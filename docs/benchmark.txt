@@ -1,4 +1,4 @@
-# XPS 13 (2015)
+# Intel Core i5-6200U @ 2.3GHz
 
 ## C
 
@@ -33,3 +33,23 @@ sys		0m0.753s
 real	4m59.600s
 user	4m57.468s
 sys		0m1.079s
+
+# Intel Xeon E5405 @ 2.00GHz
+
+## C
+
+real	2m10.430s
+user	2m8.680s
+sys		0m1.729s
+
+## D
+
+real	3m54.586s
+user	3m54.483s
+sys		0m0.053s
+
+## F#
+
+real	14m59.656s
+user	14m58.765s
+sys		0m3.356s
