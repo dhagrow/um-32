@@ -59,3 +59,13 @@ sys		0m0.053s
 real	14m59.656s
 user	14m58.765s
 sys		0m3.356s
+
+## Go
+
+real	1m35.350s
+user	1m38.504s
+sys		0m0.552s
+
+real	1m37.785s
+user	1m40.687s
+sys		0m0.621s

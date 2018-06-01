@@ -10,24 +10,6 @@ import (
 
 /*
 #include <stdio.h>
-#include <unistd.h>
-#include <termios.h>
-char getch(){
-    char ch = 0;
-    struct termios old = {0};
-    fflush(stdout);
-    if( tcgetattr(0, &old) < 0 ) perror("tcsetattr()");
-    old.c_lflag &= ~ICANON;
-    old.c_lflag &= ~ECHO;
-    old.c_cc[VMIN] = 1;
-    old.c_cc[VTIME] = 0;
-    if( tcsetattr(0, TCSANOW, &old) < 0 ) perror("tcsetattr ICANON");
-    if( read(0, &ch,1) < 0 ) perror("read()");
-    old.c_lflag |= ICANON;
-    old.c_lflag |= ECHO;
-    if(tcsetattr(0, TCSADRAIN, &old) < 0) perror("tcsetattr ~ICANON");
-    return ch;
-}
 */
 import "C" // poor go :/
 
@@ -126,7 +108,7 @@ func run() {
 			case otp: // 10
 				fmt.Print(string(reg[c]))
 			case inp: // 11
-				reg[c] = uint32(C.getch())
+				reg[c] = uint32(C.getchar())
 			case lod: // 12
 				if reg[b] != 0 {
 					// have to expand the dst array first
