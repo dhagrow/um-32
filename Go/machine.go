@@ -8,6 +8,29 @@ import (
 	"os"
 )
 
+/*
+#include <stdio.h>
+#include <unistd.h>
+#include <termios.h>
+char getch(){
+    char ch = 0;
+    struct termios old = {0};
+    fflush(stdout);
+    if( tcgetattr(0, &old) < 0 ) perror("tcsetattr()");
+    old.c_lflag &= ~ICANON;
+    old.c_lflag &= ~ECHO;
+    old.c_cc[VMIN] = 1;
+    old.c_cc[VTIME] = 0;
+    if( tcsetattr(0, TCSANOW, &old) < 0 ) perror("tcsetattr ICANON");
+    if( read(0, &ch,1) < 0 ) perror("read()");
+    old.c_lflag |= ICANON;
+    old.c_lflag |= ECHO;
+    if(tcsetattr(0, TCSADRAIN, &old) < 0) perror("tcsetattr ~ICANON");
+    return ch;
+}
+*/
+import "C" // poor go :/
+
 var memory [][]uint32
 var abandonedIndexes []uint32
 var reg [8]uint32
@@ -59,7 +82,6 @@ func run() {
 		if op(code) == ort {
 			a = uint8((platter >> 25) & 7)
 			val = platter & 0x1ffffff
-			// fmt.Printf("%d(%d, %d)\n", code, a, val)
 			reg[a] = val
 		} else {
 			a = uint8((platter >> 6) & 7)
@@ -83,6 +105,8 @@ func run() {
 				reg[a] = reg[b] / reg[c]
 			case nad: // 06
 				reg[a] = (reg[b] & reg[c]) ^ ((1 << 32) - 1)
+			case hlt: // 07
+				return
 			case alc: // 08
 				var index uint32
 				var newArray = make([]uint32, reg[c])
@@ -101,6 +125,8 @@ func run() {
 				abandonedIndexes = append(abandonedIndexes, reg[c])
 			case otp: // 10
 				fmt.Print(string(reg[c]))
+			case inp: // 11
+				reg[c] = uint32(C.getch())
 			case lod: // 12
 				if reg[b] != 0 {
 					// have to expand the dst array first
@@ -119,9 +145,8 @@ func run() {
 	}
 }
 
-func load() {
+func load(path string) {
 	memory = append(memory, make([]uint32, 0))
-	path := "scrolls/sandmark.umz"
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -145,6 +170,10 @@ func load() {
 }
 
 func main() {
-	load()
+	if len(os.Args) < 2 {
+		fmt.Println("usage: machine <source>")
+		return
+	}
+	load(os.Args[1])
 	run()
 }
