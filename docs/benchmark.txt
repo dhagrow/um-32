@@ -22,6 +22,12 @@ real	2m9.568s
 user	2m7.923s
 sys		0m0.356s
 
+## Go
+
+real	0m35.024s
+user	0m36.836s
+sys		0m0.225s
+
 ## Nim
 
 real	4m14.611s
