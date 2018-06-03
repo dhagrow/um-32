@@ -1,4 +1,5 @@
-Go
+Factor
+Haskell
 Ruby
 Pixie
 Clojure
@@ -9,7 +10,6 @@ Lua
 Haxe
 Scala
 Elixir
-Factor
 Assembly
 Haskell
 Kotlin
