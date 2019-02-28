@@ -28,6 +28,10 @@ real	0m35.024s
 user	0m36.836s
 sys		0m0.225s
 
+real	0m35.885s
+user	0m37.795s
+sys		0m0.211s
+
 ## Nim
 
 real	4m14.611s
@@ -39,6 +43,12 @@ sys		0m0.753s
 real	4m59.600s
 user	4m57.468s
 sys		0m1.079s
+
+## Rust
+
+real	0m29.188s
+user	0m29.075s
+sys		0m0.014s
 
 # Intel Xeon E5405 @ 2.00GHz
 
