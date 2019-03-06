@@ -26,6 +26,11 @@ machine-nim:
 machine-nim-clean:
 	$(MAKE) -C Nim clean
 
+machine-pony:
+	$(MAKE) -C Pony
+machine-pony-clean:
+	$(MAKE) -C Pony clean
+
 machine-rust:
 	$(MAKE) -C Rust
 machine-rust-clean:
