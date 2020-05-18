@@ -1,4 +1,6 @@
+Zig
 Pony
+Kotlin
 Factor
 Haskell
 Ruby
@@ -13,6 +15,5 @@ Scala
 Elixir
 Assembly
 Haskell
-Kotlin
 Pascal
 Racket
