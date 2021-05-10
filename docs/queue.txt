@@ -1,4 +1,7 @@
+Elixir
+Julia
 Zig
+OCaml
 Pony
 Kotlin
 Factor
@@ -12,7 +15,6 @@ TypeScript
 Lua
 Haxe
 Scala
-Elixir
 Assembly
 Haskell
 Pascal
