@@ -46,6 +46,8 @@ def cycle(limit=None):
             platter = memory[0][finger]
             code, args = unpack_op(platter)
 
+            # state('TEST', i, code, args)
+
             op = operators[code]
             op(*args)
 
@@ -80,9 +82,9 @@ def state(msg, cycle=0, code=None, args=None):
     print('{} at {} (cycle {})'.format(msg, finger, cycle))
     if code is not None:
         name = operators[code].__name__
-        print('{}|{}{}'.format(name, code, args))
-    print('reg', reg)
-    print('memory', {i: len(a) for i, a in itertools.islice(memory.items(), 10)})
+        print(' {}|{}{}'.format(name, code, args))
+    print(' reg', reg)
+    print(' memory', {i: len(a) for i, a in itertools.islice(memory.items(), 10)})
 
 ##
 ## operators
