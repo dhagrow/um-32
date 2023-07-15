@@ -1,0 +1,5 @@
+Operator #11 not implemented because I couldn't find a reasonable way to read a single character from the terminal.
+
+Some things I tried, but couldn't get to work:
+- https://github.com/swalkerhppr/elixir-io_tty
+- https://github.com/jfreeze/ex_ncurses/

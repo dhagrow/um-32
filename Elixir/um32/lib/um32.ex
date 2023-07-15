@@ -13,37 +13,10 @@ end
 
 defmodule UM32 do
   def load(program) do
-    File.stream!(program, [], 4)
-    |> Enum.into(Arrays.new())
+    File.stream!(program, [], 4) |> Enum.into(Arrays.new())
   end
 
-  def dump_state(state) do
-    %{memory: memory, finger: finger, reg: reg, cycle: cycle, index: index} = state
-
-    platter = memory[0][finger]
-    <<code::4, _rest::bits>> = platter
-
-    IO.puts("## finger: #{finger} (#{cycle}) i: #{index}")
-    case code do
-      13 -> # ort
-        <<_code::4, a::3, val::25>> = platter
-        IO.puts(" #{code}(#{a}, #{val})")
-      _ ->
-        <<code::4, _rest::19, a::3, b::3, c::3>> = platter
-        IO.puts(" #{code}(#{a}, #{b}, #{c})")
-    end
-
-    IO.write(" reg ")
-    IO.inspect(Enum.into(reg, []))
-
-    IO.write(" memory ")
-    IO.inspect(Enum.map(memory, fn {_k, v} -> Arrays.size(v) end))
-
-  end
-
-  def process(%State{halt: true} = _state) do
-    IO.puts("halt")
-  end
+  def process(%State{halt: true} = _state) do IO.puts("halt") end
   def process(state) do
     %{memory: memory, finger: finger, reg: reg, cycle: cycle, index: index} = state
 
@@ -94,6 +67,8 @@ defmodule UM32 do
           10 -> # otp
             IO.write(<<reg[c]::utf8>>)
             state
+          # 11 -> # inp
+          # Not implemented. See README
           12 -> # lod
             %{state | memory: put_in(memory[0], memory[reg[b]]), finger: reg[c] - 1}
           13 -> # ort
@@ -104,4 +79,29 @@ defmodule UM32 do
         UM32.process(state)
     end
   end
+
+  def dump_state(state) do
+    %{memory: memory, finger: finger, reg: reg, cycle: cycle, index: index} = state
+
+    platter = memory[0][finger]
+    <<code::4, _rest::bits>> = platter
+
+    IO.puts("## finger: #{finger} (#{cycle}) i: #{index}")
+    case code do
+      13 -> # ort
+        <<_code::4, a::3, val::25>> = platter
+        IO.puts(" #{code}(#{a}, #{val})")
+      _ ->
+        <<code::4, _rest::19, a::3, b::3, c::3>> = platter
+        IO.puts(" #{code}(#{a}, #{b}, #{c})")
+    end
+
+    IO.write(" reg ")
+    IO.inspect(Enum.into(reg, []))
+
+    IO.write(" memory ")
+    IO.inspect(Enum.map(memory, fn {_k, v} -> Arrays.size(v) end))
+
+  end
+
 end
