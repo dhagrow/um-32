@@ -80,7 +80,7 @@ impl Machine {
                     b = ((platter >> 3) & 7) as usize;
                     c = (platter & 7) as usize;
 
-                    Machine::state(&self.memory, reg, &code, a, b, c);
+                    // Machine::state(&self.memory, reg, &code, a, b, c);
 
                     match code {
                         Operator::cmv => {
