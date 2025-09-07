@@ -45,7 +45,7 @@ impl Machine {
         let mut program = vec![];
 
         while f.read_exact(&mut buffer).is_ok() {
-            unsafe { platter = mem::transmute::<[u8; 4], u32>(buffer).to_be(); }
+            platter = u32::from_be_bytes(buffer);
             program.push(platter);
         }
 
@@ -80,7 +80,7 @@ impl Machine {
                     b = ((platter >> 3) & 7) as usize;
                     c = (platter & 7) as usize;
 
-                    // Machine::state(&self.memory, reg, &code, a, b, c);
+                    Machine::state(&self.memory, reg, &code, a, b, c);
 
                     match code {
                         Operator::cmv => {
