@@ -1,8 +1,7 @@
-Elixir
+Gleam
 Julia
 Zig
 OCaml
-Pony
 Kotlin
 Factor
 Haskell
@@ -19,3 +18,7 @@ Assembly
 Haskell
 Pascal
 Racket
+
+# incomplete
+Elixir
+Pony
