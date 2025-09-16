@@ -1,13 +1,11 @@
-Gleam
-Julia
-Zig
 OCaml
+Zig
 Kotlin
+Clojure
 Factor
-Haskell
 Ruby
 Pixie
-Clojure
+Julia
 Gravity
 Wren
 TypeScript
@@ -20,5 +18,6 @@ Pascal
 Racket
 
 # incomplete
+Gleam
 Elixir
 Pony
