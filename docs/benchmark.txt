@@ -1,3 +1,11 @@
+# 2025-09-24 | Intel(R) Core(TM) Ultra 7 165H @ 5Ghz
+
+## Python
+
+real    33m49.223s
+user    33m47.888s
+sys     0m0.399s
+
 # Intel Core i5-6200U @ 2.3GHz
 
 ## C
